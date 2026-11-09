@@ -10,7 +10,7 @@ class RolePermission(BasePermission):
     def has_permission(self, request, view):
         if not IsAuthenticated().has_permission(request, view):
             return False
-        if request.user.is_staff or request.user.is_superuser:
+        if request.user.is_superuser:
             return True
         required_roles = self.permission_map.get(getattr(view, "action", ""), ())
         if not required_roles:
@@ -25,6 +25,7 @@ class SalesPermission(RolePermission):
         "partial_update": (SALES,),
         "destroy": (SALES,),
         "quote": (SALES,),
+        "advance": (SALES,),
     }
 
 

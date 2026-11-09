@@ -12,9 +12,9 @@ ADMINISTRATORS = "Administradores"
 
 def has_role(user, *roles):
     return user.is_authenticated and (
-        user.is_staff or user.is_superuser or user.groups.filter(name__in=roles).exists()
+        user.is_superuser
+        or user.groups.filter(name__in=(*roles, ADMINISTRATORS)).exists()
     )
-
 
 def role_required(*roles):
     def decorator(view_func):
