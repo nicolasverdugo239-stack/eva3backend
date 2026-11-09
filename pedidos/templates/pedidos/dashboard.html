@@ -1,0 +1,23 @@
+{% extends "pedidos/base.html" %}
+{% block title %}Resumen{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><p class="eyebrow">PANEL DE CONTROL</p><h1>Hola, {{ user.first_name|default:user.username }}</h1><p class="muted">Resumen de producción y entregas de Dulce Arte.</p></div>
+  <a class="button primary" href="{% url 'order_create' %}">＋ Nuevo pedido</a>
+</div>
+<section class="stats">
+  <a class="stat-card" href="{% url 'order_list' %}"><span class="stat-icon">▦</span><span class="stat-label">Pedidos activos</span><strong>{{ orders_count }}</strong><small>En todo el flujo</small></a>
+  <a class="stat-card" href="{% url 'order_list' %}"><span class="stat-icon amber">◷</span><span class="stat-label">Cotizaciones enviadas</span><strong>{{ pending_quotes }}</strong><small>Esperando respuesta</small></a>
+  <a class="stat-card" href="{% url 'order_list' %}"><span class="stat-icon purple">✦</span><span class="stat-label">En producción</span><strong>{{ production_count }}</strong><small>Preparación a calidad</small></a>
+  <a class="stat-card" href="{% url 'dispatch_list' %}"><span class="stat-icon green">↗</span><span class="stat-label">Listos para despacho</span><strong>{{ ready_to_dispatch }}</strong><small>{{ dispatches_scheduled }} en ruta · {{ deliveries_completed }} entregados</small></a>
+</section>
+{% if low_stock %}<div class="message warning inventory-warning">Hay {{ low_stock }} insumo{{ low_stock|pluralize }} en el mínimo o bajo el nivel de reposición. <a class="table-link" href="{% url 'ingredient_list' %}">Revisar bodega →</a></div>{% endif %}
+<section class="panel">
+  <div class="section-heading"><div><p class="eyebrow">SEGUIMIENTO</p><h2>Pedidos próximos</h2></div><a class="text-link" href="{% url 'order_list' %}">Ver tablero →</a></div>
+  {% if orders %}
+  <div class="table-wrap"><table><thead><tr><th>Pedido</th><th>Cliente</th><th>Producto</th><th>Entrega</th><th>Producción</th><th>Cotización</th></tr></thead><tbody>
+  {% for order in orders %}<tr><td><a class="table-link" href="{% url 'order_detail' order.pk %}">{{ order.number }}</a></td><td>{{ order.customer.name }}</td><td>{{ order.product }}</td><td>{{ order.delivery_at|date:"d/m/Y H:i" }}</td><td><span class="badge status-{{ order.status|lower }}">{{ order.get_status_display }}</span></td><td><span class="badge quote-{{ order.quote_status|lower }}">{{ order.get_quote_status_display }}</span></td></tr>{% endfor %}
+  </tbody></table></div>
+  {% else %}<div class="empty-state"><span>✿</span><h3>Aún no hay pedidos</h3><p>Registra el primer pedido personalizado para comenzar.</p><a class="button primary" href="{% url 'order_create' %}">Crear pedido</a></div>{% endif %}
+</section>
+{% endblock %}

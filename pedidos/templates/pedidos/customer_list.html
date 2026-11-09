@@ -1,0 +1,8 @@
+{% extends "pedidos/base.html" %}
+{% block title %}Clientes{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">VENTAS</p><h1>Clientes</h1><p class="muted">Contactos asociados a pedidos personalizados.</p></div><a class="button primary" href="{% url 'customer_create' %}">＋ Nuevo cliente</a></div>
+<section class="panel"><div class="table-wrap"><table><thead><tr><th>Nombre</th><th>Teléfono</th><th>Correo</th><th>Acciones</th></tr></thead><tbody>
+{% for object in objects %}<tr><td><strong>{{ object.name }}</strong></td><td>{{ object.phone }}</td><td>{{ object.email|default:"—" }}</td><td class="actions"><a href="{% url 'customer_edit' object.pk %}">Editar</a><form method="post" action="{% url 'customer_delete' object.pk %}">{% csrf_token %}<button class="link-button danger-text" onclick="return confirm('¿Eliminar este cliente?');">Eliminar</button></form></td></tr>{% empty %}<tr><td colspan="4" class="empty-row">Aún no hay clientes registrados.</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "pedidos/base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">GESTIÓN</p><h1>{{ title }}</h1></div></div>
+<form method="post" enctype="multipart/form-data" class="panel form-panel">{% csrf_token %}
+  {% if form.non_field_errors %}<div class="message error">{{ form.non_field_errors }}</div>{% endif %}
+  <div class="form-grid">{% for field in form %}<div class="field {% if field.name == 'proof_text' %}span-2{% endif %}">{% if signature_enabled and field.name == "proof_text" %}<label for="signature-pad">Firma digital de recepción</label><canvas id="signature-pad" class="signature-pad" aria-label="Dibuja aquí la firma de recepción" width="700" height="180"></canvas><div class="signature-actions"><button class="button secondary" type="button" id="clear-signature">Borrar firma</button><small>También puedes adjuntar un comprobante fotográfico.</small></div><div hidden>{{ field }}</div>{% else %}<label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% endif %}{% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}{% for error in field.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>{% endfor %}</div>
+  <div class="form-actions"><a class="button secondary" href="javascript:history.back()">Cancelar</a><button class="button primary" type="submit">Guardar</button></div>
+</form>
+{% if signature_enabled %}<script>
+(() => {
+  const canvas = document.getElementById("signature-pad");
+  const context = canvas.getContext("2d");
+  const proofField = document.getElementById("id_proof_text");
+  const clearButton = document.getElementById("clear-signature");
+  let drawing = false;
+  let signed = false;
+  context.strokeStyle = "#25242b";
+  context.lineWidth = 2.5;
+  context.lineCap = "round";
+  const point = (event) => {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: (event.clientX - rect.left) * canvas.width / rect.width,
+      y: (event.clientY - rect.top) * canvas.height / rect.height,
+    };
+  };
+  canvas.addEventListener("pointerdown", (event) => {
+    drawing = true;
+    signed = true;
+    canvas.setPointerCapture(event.pointerId);
+    const position = point(event);
+    context.beginPath();
+    context.moveTo(position.x, position.y);
+  });
+  canvas.addEventListener("pointermove", (event) => {
+    if (!drawing) return;
+    const position = point(event);
+    context.lineTo(position.x, position.y);
+    context.stroke();
+  });
+  canvas.addEventListener("pointerup", () => { drawing = false; });
+  canvas.addEventListener("pointercancel", () => { drawing = false; });
+  clearButton.addEventListener("click", () => {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    signed = false;
+    proofField.value = "";
+  });
+  canvas.closest("form").addEventListener("submit", () => {
+    if (signed) proofField.value = `data:image/png;base64,${canvas.toDataURL("image/png").split(",")[1]}`;
+  });
+})();
+</script>{% endif %}
+{% endblock %}

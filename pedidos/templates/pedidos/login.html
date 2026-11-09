@@ -1,0 +1,17 @@
+{% extends "pedidos/base.html" %}
+{% block title %}Iniciar sesión{% endblock %}
+{% block content %}
+<section class="login-wrap">
+  <div class="login-aside"><span class="brand-mark big">D</span><p class="eyebrow">PASTELERÍA ARTESANAL</p><h1>Cada pedido,<br>hecho a su medida.</h1><p>Coordina cotizaciones, cocina, bodega y despacho desde un solo lugar.</p></div>
+  <div class="panel login-panel"><p class="eyebrow">BIENVENIDO</p><h2>Iniciar sesión</h2>
+    {% if form.errors %}<div class="message error">Usuario o contraseña incorrectos.</div>{% endif %}
+    <form method="post">{% csrf_token %}
+      <div class="field"><label for="{{ form.username.id_for_label }}">Usuario</label>{{ form.username }}</div>
+      <div class="field"><label for="{{ form.password.id_for_label }}">Contraseña</label>{{ form.password }}</div>
+      {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+      <button class="button primary wide" type="submit">Entrar al sistema</button>
+    </form>
+    <p class="muted small">Solicita una cuenta al administrador del sistema.</p>
+  </div>
+</section>
+{% endblock %}

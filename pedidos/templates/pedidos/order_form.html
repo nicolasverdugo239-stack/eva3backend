@@ -1,0 +1,22 @@
+{% extends "pedidos/base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">VENTAS</p><h1>{{ title }}</h1><p class="muted">Completa los datos del cliente, personalización y lista de materiales.</p></div><a class="button secondary" href="{% url 'order_list' %}">Volver</a></div>
+<form method="post" class="panel form-panel">{% csrf_token %}
+  {% if form.non_field_errors %}<div class="message error">{{ form.non_field_errors }}</div>{% endif %}
+  <h2>Datos del pedido</h2>
+  <div class="form-grid">{% for field in form %}
+    <div class="field {% if field.name == 'design' or field.name == 'notes' %}span-2{% endif %}"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}{% for error in field.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>
+  {% endfor %}</div>
+  <div class="section-heading form-section-heading"><div><h2>Lista de materiales (BOM)</h2><p class="muted">Indica insumos y cantidad requerida para fabricar este pedido.</p></div></div>
+  {{ formset.management_form }}
+  {% if formset.non_form_errors %}<div class="message error">{{ formset.non_form_errors }}</div>{% endif %}
+  <div class="form-grid material-grid">{% for material in formset %}
+    <div class="field material-line"><label>Insumo {{ forloop.counter }}</label>{{ material.ingredient }}{% for error in material.ingredient.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>
+    <div class="field material-line"><label for="{{ material.quantity.id_for_label }}">Cantidad requerida</label>{{ material.quantity }}{% for error in material.quantity.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>
+    {% if material.instance.pk %}<div class="field delete-line"><label for="{{ material.DELETE.id_for_label }}">Eliminar</label>{{ material.DELETE }}</div>{% endif %}
+    {{ material.id }}
+  {% endfor %}</div>
+  <div class="form-actions"><a class="button secondary" href="{% url 'order_list' %}">Cancelar</a><button class="button primary" type="submit">Guardar pedido</button></div>
+</form>
+{% endblock %}

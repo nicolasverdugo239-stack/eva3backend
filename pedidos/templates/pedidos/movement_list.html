@@ -1,0 +1,8 @@
+{% extends "pedidos/base.html" %}
+{% block title %}Movimientos de inventario{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">TRAZABILIDAD DE BODEGA</p><h1>Movimientos de inventario</h1><p class="muted">Historial de entradas, salidas y consumos de producción.</p></div><a class="button primary" href="{% url 'inventory_movement_create' %}">＋ Registrar entrada / salida</a></div>
+<section class="panel"><div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Insumo</th><th>Movimiento</th><th>Cantidad</th><th>Saldo después</th><th>Origen / referencia</th><th>Responsable</th></tr></thead><tbody>
+{% for movement in objects %}<tr><td>{{ movement.created_at|date:"d/m/Y H:i" }}</td><td><strong>{{ movement.ingredient.name }}</strong></td><td>{% if movement.direction == "IN" %}<span class="badge delivered">Entrada</span>{% else %}<span class="badge low-stock">Salida</span>{% endif %}</td><td>{{ movement.quantity }} {{ movement.ingredient.unit }}</td><td>{{ movement.stock_after }} {{ movement.ingredient.unit }}</td><td>{{ movement.get_source_display }}{% if movement.note %}<br><small>{{ movement.note }}</small>{% endif %}{% if movement.order %}<br><a class="table-link" href="{% url 'order_detail' movement.order_id %}">{{ movement.order.number }}</a>{% endif %}</td><td>{{ movement.created_by|default:"Sistema" }}</td></tr>{% empty %}<tr><td colspan="7" class="empty-row">Aún no hay movimientos registrados.</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% endblock %}

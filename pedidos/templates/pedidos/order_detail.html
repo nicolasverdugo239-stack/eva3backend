@@ -1,0 +1,40 @@
+{% extends "pedidos/base.html" %}
+{% block title %}{{ order.number }}{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><a class="back-link" href="{% url 'order_list' %}">← Volver al tablero</a><p class="eyebrow">{{ order.number }}</p><h1>{{ order.product }}</h1><p class="muted">Creado {{ order.created_at|date:"d/m/Y H:i" }} · Entrega {{ order.delivery_at|date:"d/m/Y H:i" }}</p></div>
+  {% if order.status == "RECEIVED" and order.quote_status != "SENT" and order.quote_status != "APPROVED" %}<a class="button secondary" href="{% url 'order_edit' order.pk %}">Editar pedido</a>{% endif %}
+</div>
+<div class="detail-grid">
+  <section class="panel">
+    <div class="section-heading"><div><p class="eyebrow">DETALLE</p><h2>Personalización</h2></div><span class="badge status-{{ order.status|lower }}">{{ order.get_status_display }}</span></div>
+    <div class="detail-row"><span>Cliente</span><strong>{{ order.customer.name }}</strong></div><div class="detail-row"><span>Teléfono</span><strong>{{ order.customer.phone }}</strong></div><div class="detail-row"><span>Correo</span><strong>{{ order.customer.email|default:"No informado" }}</strong></div>
+    <div class="detail-block"><span>Diseño solicitado</span><p>{{ order.design|linebreaksbr }}</p></div><div class="detail-block"><span>Dirección de entrega</span><p>{{ order.delivery_address }}</p></div>
+    {% if order.notes %}<div class="detail-block"><span>Notas</span><p>{{ order.notes|linebreaksbr }}</p></div>{% endif %}
+    <div class="production-actions">
+      {% if next_status %}
+      <form method="post" action="{% url 'order_transition' order.pk %}">{% csrf_token %}<input type="hidden" name="status" value="{{ next_status }}"><button class="button primary" type="submit">Avanzar a {{ next_status_label }}</button></form>
+      {% endif %}
+      {% if order.status != "CANCELLED" and order.status != "READY" %}<form method="post" action="{% url 'order_transition' order.pk %}" onsubmit="return confirm('¿Cancelar el pedido? Se devolverán los insumos reservados.');">{% csrf_token %}<input type="hidden" name="status" value="CANCELLED"><button class="button danger-outline" type="submit">Cancelar pedido</button></form>{% endif %}
+      {% if not order.inventory_reserved and order.status == "RECEIVED" %}<form method="post" action="{% url 'order_delete' order.pk %}">{% csrf_token %}<button class="button danger-outline" type="submit" onclick="return confirm('¿Eliminar este pedido?');">Eliminar</button></form>{% endif %}
+    </div>
+  </section>
+  <section class="panel">
+    <p class="eyebrow">COTIZACIÓN</p><h2>Resumen de costos</h2>
+    <div class="detail-row"><span>Materiales</span><strong>${{ order.material_total|floatformat:0 }}</strong></div><div class="detail-row"><span>Mano de obra</span><strong>${{ order.labor_cost|floatformat:0 }}</strong></div>
+    <div class="quote-total"><span>Total estimado</span><strong>${{ order.quote_total|floatformat:0 }}</strong></div>
+    <div class="detail-row"><span>Estado</span><span class="badge quote-{{ order.quote_status|lower }}">{{ order.get_quote_status_display }}</span></div>
+    <p class="muted small">El total suma costos registrados de insumos y mano de obra. Ajusta estos valores según la cotización comercial.</p>
+    <div class="quote-actions">
+      {% if order.quote_status == "DRAFT" %}<form method="post" action="{% url 'order_quote' order.pk %}">{% csrf_token %}<input type="hidden" name="action" value="send"><button class="button secondary" type="submit">Marcar cotización enviada</button></form>{% endif %}
+      {% if order.quote_status == "SENT" %}<form method="post" action="{% url 'order_quote' order.pk %}">{% csrf_token %}<input type="hidden" name="action" value="approve"><button class="button primary" type="submit">Aprobar cotización</button></form><form method="post" action="{% url 'order_quote' order.pk %}">{% csrf_token %}<input type="hidden" name="action" value="reject"><button class="button danger-outline" type="submit">Rechazar</button></form>{% endif %}
+    </div>
+    <h3 class="subheading">Lista de materiales (BOM)</h3>
+    {% for line in order.materials.all %}<div class="material-summary"><span>{{ line.ingredient.name }} <small>({{ line.ingredient.stock }} {{ line.ingredient.unit }} disponibles)</small></span><strong>{{ line.quantity }} {{ line.ingredient.unit }}</strong></div>{% empty %}<p class="muted">No hay insumos asociados.</p>{% endfor %}
+    <div class="detail-row inventory-state"><span>Descuento de inventario</span><strong>{% if order.inventory_reserved %}Aplicado{% else %}Pendiente al iniciar producción{% endif %}</strong></div>
+  </section>
+</div>
+<section class="panel history-panel"><div class="section-heading"><div><p class="eyebrow">TRAZABILIDAD</p><h2>Historial de producción</h2></div></div>
+  {% for event in order.history.all %}<div class="history-item"><span class="history-marker"></span><div><strong>{{ event.get_new_status_display }}</strong><p>{{ event.changed_at|date:"d/m/Y H:i" }}{% if event.changed_by %} · {{ event.changed_by.username }}{% endif %}</p></div></div>{% empty %}<p class="muted">El historial aparecerá al iniciar o avanzar la producción.</p>{% endfor %}
+</section>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Dulce Arte{% endblock %} · Dulce Arte</title>
+  <link rel="stylesheet" href="{% static 'pedidos/app.css' %}">
+</head>
+<body>
+  {% if user.is_authenticated %}
+  <header class="topbar">
+    <a class="brand" href="{% url 'dashboard' %}"><span class="brand-mark">D</span><span>Dulce Arte<small>Gestión de pedidos</small></span></a>
+    <nav>
+      <a href="{% url 'dashboard' %}">Resumen</a>
+      <a href="{% url 'order_list' %}">Tablero</a>
+      <a href="{% url 'customer_list' %}">Clientes</a>
+      <a href="{% url 'ingredient_list' %}">Bodega</a>
+      <a href="{% url 'inventory_movement_list' %}">Movimientos</a>
+      <a href="{% url 'dispatch_list' %}">Despachos</a>
+      <a href="/admin/">Administración</a>
+    </nav>
+    <form method="post" action="{% url 'logout' %}" class="logout-form">
+      {% csrf_token %}<span>{{ user.username }}</span><button class="link-button" type="submit">Salir</button>
+    </form>
+  </header>
+  {% endif %}
+  <main class="page">
+    {% if messages %}
+      <section class="messages">
+        {% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}
+      </section>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="footer">Dulce Arte · Trazabilidad de pedidos y producción</footer>
+</body>
+</html>

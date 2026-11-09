@@ -1,0 +1,5 @@
+{% extends "pedidos/base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<section class="panel confirm-panel"><p class="eyebrow">CONFIRMACIÓN</p><h1>{{ title }}</h1><p>¿Estás seguro de que deseas eliminar <strong>{{ object }}</strong>? Esta acción no se puede deshacer.</p><form method="post">{% csrf_token %}<a class="button secondary" href="javascript:history.back()">Volver</a> <button class="button danger" type="submit">Eliminar definitivamente</button></form></section>
+{% endblock %}
