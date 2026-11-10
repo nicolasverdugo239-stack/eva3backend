@@ -1,20 +1,77 @@
-# Registro de apoyo de inteligencia artificial
+# Registro de apoyo de Inteligencia Artificial
 
-Este proyecto fue elaborado con asistencia de IA para estructurar e implementar el código, siguiendo los requerimientos del Proyecto 3 (Dulce Arte) y la pauta de Evaluación Parcial 3. La persona responsable debe revisar el resultado, ejecutar las pruebas y poder explicar cada decisión en la defensa.
+**Proyecto:** Dulce Arte – Sistema de Gestión de Pedidos  
+**Asignatura:** Desarrollo Backend  
+**Evaluación:** Parcial N.º 3  
+**Herramienta utilizada:** ChatGPT (OpenAI)
 
-## Consultas y apoyos solicitados
+## 1. Introducción
 
-1. **Solicitud inicial:** “El primer Word contiene todo lo que tengo que hacer y en el Word que dice proyectos me tocó el proyecto 3; quiero que me lo hagas”.
-   - Apoyo: lectura de ambos documentos y extracción de requisitos técnicos, de negocio, entregables y evaluación.
-2. **Diseño de la solución:** solicitud de implementar el Proyecto 3 en el espacio de trabajo.
-   - Apoyo: propuesta y creación de una aplicación Django/DRF con clientes, pedidos personalizados, cotización, inventario BOM, Kanban, historial de producción y despacho con comprobante.
-3. **Reglas de negocio y seguridad:** apoyo para estructurar el flujo y su implementación.
-   - Apoyo: cotización antes de producción, transiciones secuenciales, movimientos auditables de entrada/salida y descuento BOM transaccional, reversa al cancelar, roles de Ventas/Cocina/Bodega/Despacho, acceso autenticado por sesión y API restringida.
-4. **Documentación:** apoyo para redactar instrucciones de desarrollo local, PostgreSQL, despliegue EC2, defensa práctica y validación automatizada.
-5. **Auditoría y mejoras:** revisión de la estructura existente y pruebas para inventario, permisos, API, comprobantes de entrega, persistencia de movimientos y registro de modelos en Django Admin.
+Durante el desarrollo de Dulce Arte se utilizó ChatGPT como herramienta de apoyo para comprender requerimientos, consultar soluciones técnicas, revisar código y resolver dificultades encontradas durante la implementación y el despliegue.
 
-## Uso responsable
+El trabajo también incluyó actividades prácticas en Visual Studio Code, GitHub y AWS Academy, realizando configuraciones, ejecutando comandos y verificando el funcionamiento de la aplicación.
 
-- No se usó IA para generar credenciales, claves privadas, datos personales ni una IP pública.
-- La configuración de AWS debe completarse con la cuenta del estudiante y los secretos deben mantenerse fuera del repositorio.
-- El estudiante debe personalizar este registro si utiliza otras herramientas o solicita apoyos adicionales.
+## 2. Consultas realizadas a la IA
+
+### Consulta 1: Análisis de requerimientos
+
+**Consulta:** ¿Cuáles son los principales requisitos técnicos y funcionales que debo considerar para desarrollar el proyecto Dulce Arte utilizando Django y PostgreSQL?
+
+**Apoyo recibido:** Interpretación de la pauta de evaluación e identificación de los módulos necesarios para gestionar clientes, pedidos, inventario, producción y despachos.
+
+### Consulta 2: Estructura y funcionamiento del backend
+
+**Consulta:** ¿Cómo puedo organizar los modelos, vistas, serializadores y rutas de una aplicación Django REST Framework para administrar pedidos e inventario?
+
+**Apoyo recibido:** Orientación y propuestas de implementación para estructurar los componentes del backend y sus operaciones CRUD.
+
+### Consulta 3: Seguridad y reglas de negocio
+
+**Consulta:** ¿Cómo puedo implementar permisos por roles y validar que los pedidos avancen correctamente por las etapas de producción?
+
+**Apoyo recibido:** Explicaciones y propuestas de código para controlar permisos, validar inventario y gestionar los cambios de estado de los pedidos.
+
+### Consulta 4: Resolución de errores
+
+**Consulta:** ¿Cómo puedo identificar y solucionar errores de configuración, dependencias, conexión a PostgreSQL y funcionamiento de Django?
+
+**Apoyo recibido:** Interpretación de mensajes de error, explicación de sus posibles causas y orientación para aplicar correcciones y comprobar resultados.
+
+### Consulta 5: Despliegue en AWS EC2
+
+**Consulta:** ¿Qué pasos debo seguir para publicar una aplicación Django con PostgreSQL en AWS EC2 utilizando Gunicorn y Nginx?
+
+**Apoyo recibido:** Instrucciones para configurar Ubuntu, instalar dependencias, administrar servicios y comprobar el acceso público a la aplicación.
+
+### Consulta 6: HTTPS y documentación
+
+**Consulta:** ¿Cómo puedo configurar HTTPS con Let's Encrypt y documentar correctamente el despliegue de mi proyecto?
+
+**Apoyo recibido:** Orientación para configurar Certbot y Nginx, verificar el certificado SSL, comprobar su renovación y actualizar la documentación técnica del repositorio.
+
+## 3. Actividades prácticas realizadas
+
+Durante el trabajo en el proyecto se realizaron las siguientes actividades:
+
+- Uso de Visual Studio Code para trabajar con los archivos del proyecto.
+- Ejecución de comandos de Python, Django y Git.
+- Configuración de una instancia Ubuntu en AWS Academy.
+- Instalación y configuración de PostgreSQL, Gunicorn y Nginx.
+- Ejecución de migraciones de base de datos.
+- Pruebas de funcionamiento de pedidos, inventario, despachos y API REST.
+- Verificación del acceso HTTPS y de la renovación del certificado SSL.
+- Actualización y publicación de documentación en GitHub.
+
+## 4. Uso responsable
+
+ChatGPT se utilizó como herramienta de asistencia técnica, incluyendo explicaciones, propuestas de código, recomendaciones de configuración y ayuda para resolver problemas.
+
+Las soluciones obtenidas se integraron y comprobaron mediante actividades prácticas. El uso de IA no reemplaza la necesidad de comprender el funcionamiento de la aplicación y explicar sus componentes durante la defensa.
+
+Las contraseñas, credenciales y claves privadas de producción se mantienen fuera del repositorio público.
+
+## 5. Conclusión
+
+La inteligencia artificial fue una herramienta de apoyo durante el desarrollo de Dulce Arte, principalmente para orientar decisiones técnicas, resolver errores y facilitar el proceso de despliegue.
+
+El proyecto permitió trabajar con Django REST Framework, PostgreSQL y AWS EC2, aplicando conocimientos de desarrollo backend, bases de datos, autenticación y administración de servicios.
