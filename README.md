@@ -1,34 +1,87 @@
-# Dulce Arte — pedidos, producción y despacho
+# Dulce Arte — Gestión de pedidos, producción y despacho
 
-Aplicación web para la pastelería artesanal Dulce Arte. Administra clientes, cotizaciones personalizadas, lista de materiales (BOM), existencias, etapas de cocina y comprobantes de entrega. Está construida con Django, Django REST Framework y PostgreSQL. SQLite queda disponible para comenzar el desarrollo local sin instalar PostgreSQL.
+**Evaluación Parcial N.º 3 — Desarrollo Backend**  
+**Tecnologías:** Django, Django REST Framework, PostgreSQL, Gunicorn, Nginx y AWS EC2.
+
+## Aplicación desplegada
+
+- **Sitio web (HTTPS):** https://32.200.108.64/
+- **Django Admin:** https://32.200.108.64/admin/
+- **API REST:** https://32.200.108.64/api/
+- **Repositorio:** https://github.com/nicolasverdugo239-stack/eva3backend
+
+> **Nota:** La IP pública de la instancia EC2 no es una Elastic IP y puede cambiar si se detiene o recrea la instancia. Verificar la IP y el certificado antes de la defensa. El certificado de Let's Encrypt para esta IP es de corta duración y requiere renovación periódica.
+
+## Descripción
+
+Dulce Arte es una aplicación web para una pastelería artesanal. Centraliza la gestión de clientes, pedidos personalizados, cotizaciones, listas de materiales (BOM), inventario, producción y despachos. Integra una interfaz web, una API REST y el panel administrativo de Django, con autenticación y permisos diferenciados por rol.
 
 ## Funcionalidades
 
-- Registro y edición de clientes y pedidos personalizados, con fecha/hora de entrega, diseño, dirección y notas.
-- Cálculo de cotización a partir del costo de los insumos BOM más la mano de obra; acciones para enviar, aprobar o rechazar.
-- Tablero Kanban: Recibido → En Preparación → Horneado/Decorado → Control de Calidad → Listo.
-- Al avanzar a producción, valida y descuenta el inventario en una transacción; si no hay stock suficiente, no cambia ni el pedido ni las existencias. Cancelar un pedido devuelve una sola vez el stock reservado.
-- Movimientos de bodega auditables: cada entrada, salida, consumo de BOM y devolución por cancelación registra responsable y saldo posterior; la existencia no se edita directamente desde formularios, API o Admin.
-- Registro de los cambios de estado para trazabilidad.
-- CRUD de clientes, insumos, pedidos y despachos, alertas visuales de stock bajo y evidencia de recepción mediante firma dibujada o comprobante fotográfico.
-- Roles de aplicación: **Ventas**, **Cocina**, **Bodega**, **Despacho** y **Administradores**. Las lecturas requieren inicio de sesión; las escrituras exigen el rol correspondiente. La cuenta staff/superusuario administra el panel Django.
-- Admin de Django personalizado y API REST protegida por sesión y permisos de rol.
+- **Clientes y pedidos:** registro, consulta, edición y gestión de pedidos personalizados, con fecha y hora de entrega, diseño, dirección y observaciones.
+- **Cotizaciones:** cálculo según costo de insumos BOM y mano de obra; envío, aprobación y rechazo.
+- **Producción:** tablero Kanban con etapas Recibido → En Preparación → Horneado/Decorado → Control de Calidad → Listo.
+- **Inventario:** validación de stock y descuento transaccional de insumos al iniciar producción; bloqueo si el stock es insuficiente.
+- **Trazabilidad:** registro de movimientos de inventario, responsables, saldos posteriores e historial de estados del pedido.
+- **Cancelaciones:** devolución controlada del stock reservado, evitando devoluciones duplicadas.
+- **Despachos:** planificación y registro de entrega, con comprobante de recepción, firma o imagen según el formulario utilizado.
+- **Administración:** Django Admin personalizado y API REST con controles de acceso.
 
-## Requisitos
+## Roles y seguridad
 
-- Python 3.11 o superior (probado en Python 3.13).
-- Para desarrollo local: SQLite incluido con Python.
-- Para producción: PostgreSQL 14 o superior y una instancia Linux (para esta evaluación, AWS EC2).
+Los grupos de la aplicación son **Ventas**, **Cocina**, **Bodega**, **Despacho** y **Administradores**. Las consultas protegidas requieren inicio de sesión; las operaciones de escritura se restringen según el rol correspondiente. El administrador puede gestionar usuarios y grupos mediante Django Admin.
 
-## Ejecución local en Windows PowerShell
+En producción se utilizan HTTPS, autenticación por sesión, permisos de Django/DRF, un proxy inverso Nginx y variables privadas para las credenciales. La base PostgreSQL no debe exponerse directamente a Internet.
 
-Desde la carpeta del proyecto. Si `py` no existe en tu Windows, usa `python` como se muestra:
+## Arquitectura
+
+```text
+Navegador / cliente HTTP
+          |
+          | HTTPS (443)
+          v
+    Nginx en AWS EC2
+      |           |
+      |           +--> /static/ y /media/
+      v
+ Gunicorn (127.0.0.1:8000)
+      |
+      v
+ Django + Django REST Framework
+      |
+      v
+ PostgreSQL en la misma instancia EC2
+```
+
+### Arquitectura 4+1
+
+- **Vista lógica:** modelos `Customer`, `Order`, `OrderIngredient`, `Ingredient`, `InventoryMovement`, `OrderStatusHistory` y `Dispatch`.
+- **Vista de desarrollo:** proyecto Django `dulcearte` y aplicación `pedidos`, con modelos, formularios, vistas, serializadores, rutas, permisos, Admin y pruebas.
+- **Vista de procesos:** autenticación, cotización, aprobación, consumo de insumos, transición de etapas y despacho.
+- **Vista física:** instancia Ubuntu 24.04 en AWS EC2, Nginx, Gunicorn, Django y PostgreSQL.
+- **Escenarios (+1):** registrar pedido; calcular y aprobar cotización; impedir producción sin stock; registrar ingreso de inventario; avanzar producción; confirmar entrega.
+
+## Tecnologías y requisitos
+
+- Python 3.11 o superior.
+- Django y Django REST Framework.
+- PostgreSQL para producción; SQLite como alternativa de desarrollo local cuando no se define `DATABASE_URL`.
+- Gunicorn como servidor WSGI en producción.
+- Nginx como proxy inverso y servidor de archivos estáticos.
+- AWS Academy Learner Lab / Amazon EC2 con Ubuntu 24.04.
+- Certbot y Let's Encrypt para HTTPS.
+
+Las versiones exactas de los paquetes están definidas en `requirements.txt`.
+
+## Instalación local en Windows (PowerShell)
+
+Desde la carpeta del repositorio:
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
-$env:DJANGO_SECRET_KEY = "clave-local-de-desarrollo"
+$env:DJANGO_SECRET_KEY = "clave-local-de-desarrollo-cambiar"
 $env:DJANGO_DEBUG = "True"
 $env:DJANGO_ALLOWED_HOSTS = "127.0.0.1,localhost"
 python manage.py migrate
@@ -37,178 +90,172 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-Abre `http://127.0.0.1:8000/` e inicia sesión con la cuenta creada. Admin: `http://127.0.0.1:8000/admin/`. La aplicación exige autenticación; crea usuarios adicionales desde **Admin → Usuarios**. Para salir se usa el botón del menú.
+Abrir http://127.0.0.1:8000/ y acceder al panel administrativo en http://127.0.0.1:8000/admin/.
 
-En PowerShell, si la política de ejecución bloquea el entorno virtual, ejecuta `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` y vuelve a activar `.\.venv\Scripts\Activate.ps1`. En cada consola configura las variables `$env:`; Django no lee `.env` automáticamente. No guardes claves reales en el repositorio.
-
-Después de crear el superusuario, entra a **Admin → Usuarios**, selecciona las cuentas y asígnales sus grupos en **Grupos disponibles**. El comando `setup_roles` crea los grupos, pero no asigna usuarios automáticamente.
-
-## Usar PostgreSQL localmente
-
-1. Crea una base `dulcearte` y un usuario con permisos sobre ella en PostgreSQL.
-2. En la misma consola, configura la URL de conexión:
+Si PowerShell bloquea la activación del entorno virtual:
 
 ```powershell
-$env:DATABASE_URL = "postgresql://dulcearte_user:tu_clave@127.0.0.1:5432/dulcearte"
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+```
+
+El comando `setup_roles` crea los grupos; para asignar usuarios, entrar a **Admin → Usuarios** y seleccionar sus grupos.
+
+### PostgreSQL local (opcional)
+
+Crear una base de datos y un usuario PostgreSQL con permisos, y configurar `DATABASE_URL` en la consola:
+
+```powershell
+$env:DATABASE_URL = "postgresql://USUARIO:CLAVE@127.0.0.1:5432/NOMBRE_BASE"
 python manage.py migrate
 ```
 
-La app usa `DATABASE_URL` cuando está definida; si no, usa `db.sqlite3` para facilitar el desarrollo. **La base local comprobada en esta auditoría es SQLite. No se verificó conexión real a PostgreSQL porque no se configuró `DATABASE_URL`.** Para cumplir la evaluación, configura PostgreSQL y comprueba la conexión y las migraciones antes de presentar. En producción define `DATABASE_URL` como variable privada del servicio y nunca la escribas en el código ni en Git.
+No guardar credenciales reales en archivos versionados.
 
 ## API REST
 
-Las rutas están bajo `/api/` y requieren una sesión autenticada. Inicia sesión en el navegador; DRF ofrece su interfaz navegable:
+La API se encuentra bajo `/api/` y requiere una sesión autenticada y los permisos apropiados.
 
-- `/api/clientes/`
-- `/api/insumos/`
-- `/api/pedidos/` — `POST /api/pedidos/{id}/quote/` acepta `quote_status` (`SENT`, `APPROVED`, `REJECTED`); `POST /api/pedidos/{id}/advance/` recibe `status` con el siguiente estado válido. `status` y `quote_status` no se pueden cambiar mediante los endpoints CRUD genéricos.
-- `/api/materiales-pedido/` — CRUD de líneas BOM antes de enviar o aprobar la cotización y antes de iniciar la producción.
-- `/api/despachos/`
-- `/api/movimientos-inventario/` — `GET` para consultar y `POST` para registrar entradas/salidas con el rol Bodega. Los movimientos quedan como bitácora: no se editan ni eliminan.
+| Recurso | Ruta |
+|---|---|
+| Clientes | `/api/clientes/` |
+| Insumos | `/api/insumos/` |
+| Pedidos | `/api/pedidos/` |
+| Materiales de pedido (BOM) | `/api/materiales-pedido/` |
+| Despachos | `/api/despachos/` |
+| Movimientos de inventario | `/api/movimientos-inventario/` |
 
-Las operaciones de cambio de etapa aplican las mismas reglas de negocio que el tablero web. Enviar una cotización: `{"quote_status":"SENT"}`; aprobar/rechazar: `{"quote_status":"APPROVED"}` o `{"quote_status":"REJECTED"}`; restablecer una cotización rechazada para revisarla: `{"quote_status":"DRAFT"}`. El stock en `/api/insumos/` es de solo lectura; usa `/api/movimientos-inventario/`. Asigna grupos de rol según corresponda. Django Admin se encuentra en `/admin/`.
+### Acciones de negocio
 
-## Arquitectura 4+1
+- `POST /api/pedidos/{id}/quote/`: gestionar cotización con `quote_status` (`SENT`, `APPROVED`, `REJECTED`; `DRAFT` para revisión cuando proceda).
+- `POST /api/pedidos/{id}/advance/`: avanzar a la siguiente etapa válida mediante `status`.
+- El stock de `/api/insumos/` es de solo lectura; las entradas y salidas se registran en `/api/movimientos-inventario/`.
+- Los movimientos de inventario son auditables y no se editan ni eliminan desde la API.
+- Las acciones de la API respetan las mismas reglas de negocio que la interfaz web.
 
-- **Vista lógica:** `Customer`, `Order`, `OrderIngredient`, `Ingredient`, `InventoryMovement`, `OrderStatusHistory` y `Dispatch` representan clientes, pedidos, BOM, existencias, bitácora de bodega, trazabilidad y entrega. Las reglas de costo, stock y estados se ejecutan en modelos/servicios.
-- **Vista de desarrollo:** el proyecto Django `dulcearte` configura seguridad, sesiones, almacenamiento y URLs; la aplicación `pedidos` mantiene modelos, formularios, vistas web, serializadores, API, Admin y pruebas.
-- **Vista de procesos:** el navegador/API autentica por sesión; ventas registra pedido y BOM, la cotización debe aprobarse, cocina avanza por estados consecutivos y el servicio transaccional reserva insumos; despacho registra ruta y comprobante de entrega.
-- **Vista física:** navegador → Nginx (estáticos y proxy) → Gunicorn → Django → PostgreSQL local en EC2. Las imágenes de comprobantes quedan en `media/`; las claves están fuera del código, en el entorno del servicio.
-- **Escenarios (+1):** registrar/cotizar pedido; aprobar e iniciar producción con stock válido; bloquear inicio por falta de stock; cancelar y reponer stock; avanzar calidad a listo; planificar ruta y confirmar entrega.
+## Despliegue real en AWS EC2
 
-## Despliegue en AWS EC2 (Ubuntu 24.04)
+La aplicación fue desplegada en una instancia **Ubuntu 24.04**, dentro de **AWS Academy**, con los siguientes componentes:
 
-El despliegue requiere que el estudiante cree y administre la instancia en AWS Academy; este repositorio no contiene credenciales ni una IP pública. Usa una instancia EC2 Ubuntu, reserva/identifica su IP pública y abre en el Security Group SSH (22, solo tu IP), HTTP (80) y, si vas a configurar TLS, HTTPS (443). No expongas PostgreSQL (5432) a Internet: déjalo accesible solo localmente en la instancia.
+| Componente | Configuración desplegada |
+|---|---|
+| Instancia | EC2, Ubuntu 24.04 |
+| IP pública utilizada | `32.200.108.64` |
+| Carpeta del proyecto | `/home/ubuntu/eva3backend` |
+| Entorno virtual | `/home/ubuntu/eva3backend/.venv` |
+| Base de datos | PostgreSQL local en EC2 |
+| Base y usuario | `dulce_arte` / `dulce_arte_user` |
+| Servicio de aplicación | `dulcearte.service` (Gunicorn) |
+| Proxy inverso | Nginx |
+| HTTPS | Let's Encrypt, certificado para la IP pública |
+| Puertos públicos | 80 (redirección a HTTPS), 443 (HTTPS) |
+| SSH | 22, acceso restringido |
 
-### 1. Instalar servicios
+### 1. Preparación de la instancia
 
-Conéctate por SSH a la instancia:
+Instalar las dependencias del sistema en Ubuntu:
 
 ```bash
 sudo apt update
 sudo apt install -y python3-venv python3-dev build-essential libpq-dev postgresql nginx
-sudo -u postgres createuser --pwprompt dulcearte_user
-sudo -u postgres createdb -O dulcearte_user dulcearte
 ```
 
-### 2. Copiar y configurar el proyecto
+En PostgreSQL, crear el usuario y la base de datos de producción con una contraseña privada. No abrir el puerto 5432 al público.
 
-Clona el repositorio en `/opt/dulcearte` y luego:
+### 2. Código y dependencias
 
 ```bash
-cd /opt/dulcearte
-sudo python3 -m venv .venv
-sudo .venv/bin/pip install -r requirements.txt
-sudo nano /etc/dulcearte.env
+cd /home/ubuntu
+# En una instalación nueva:
+git clone https://github.com/nicolasverdugo239-stack/eva3backend.git
+cd eva3backend
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
-Contenido del archivo de entorno (reemplaza todos los ejemplos; usa una clave larga generada para Django):
+Para una instalación existente, actualizar el código con `git pull` y volver a instalar las dependencias si `requirements.txt` cambió.
 
-```text
-DJANGO_SECRET_KEY=PEGA_AQUI_UNA_CLAVE_ALEATORIA_LARGA
-DJANGO_DEBUG=False
-DJANGO_ALLOWED_HOSTS=IP_PUBLICA_EC2,tu-dominio-si-tienes
-DATABASE_URL=postgresql://dulcearte_user:CONTRASENA@127.0.0.1:5432/dulcearte
-DJANGO_SECURE_COOKIES=False
-```
+> El archivo de variables privadas `.env` del servidor debe configurarse fuera del control de versiones. Contiene `DATABASE_URL`, `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=False` y `DJANGO_ALLOWED_HOSTS`. No se publica su contenido.
 
-Protege ese archivo: `sudo chown root:www-data /etc/dulcearte.env && sudo chmod 640 /etc/dulcearte.env`. Cambia `CONTRASENA` por la contraseña asignada al usuario PostgreSQL; codifica caracteres especiales de la URL. No compartas el archivo ni lo subas al repositorio.
+### 3. Migraciones, roles y archivos estáticos
+
+Con el entorno y las variables de producción correctamente cargados:
 
 ```bash
-cd /opt/dulcearte
-sudo .venv/bin/python manage.py migrate
-sudo .venv/bin/python manage.py setup_roles
-sudo .venv/bin/python manage.py createsuperuser
-sudo .venv/bin/python manage.py collectstatic --noinput
+python manage.py migrate
+python manage.py setup_roles
+python manage.py collectstatic --noinput
+python manage.py check
 ```
 
-### 3. Configurar Gunicorn y Nginx
+Crear un superusuario con `python manage.py createsuperuser` únicamente si todavía no existe.
 
-Crea `/etc/systemd/system/dulcearte.service`:
+### 4. Gunicorn y Nginx
 
-```ini
-[Unit]
-Description=Dulce Arte Django application
-After=network.target postgresql.service
+El servicio systemd `dulcearte.service` ejecuta Gunicorn con la aplicación `dulcearte.wsgi:application` y escucha en `127.0.0.1:8000`. Nginx recibe el tráfico público, sirve archivos estáticos y multimedia y reenvía las solicitudes dinámicas a Gunicorn.
 
-[Service]
-User=www-data
-Group=www-data
-WorkingDirectory=/opt/dulcearte
-EnvironmentFile=/etc/dulcearte.env
-ExecStart=/opt/dulcearte/.venv/bin/gunicorn dulcearte.wsgi:application --bind 127.0.0.1:8000 --workers 3
-Restart=on-failure
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Da al servicio acceso al código y a la carpeta `media` (por ejemplo, asignando `/opt/dulcearte` al usuario/grupo `www-data`; limita permisos de escritura a `media`). Configura Nginx con un bloque `server` para el puerto 80:
-
-```nginx
-server {
-    listen 80;
-    server_name IP_PUBLICA_EC2;
-    client_max_body_size 10M;
-
-    location /static/ {
-        alias /opt/dulcearte/staticfiles/;
-    }
-    location /media/ {
-        alias /opt/dulcearte/media/;
-    }
-    location / {
-        proxy_set_header Host $host;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_pass http://127.0.0.1:8000;
-    }
-}
-```
-
-Guárdalo como `/etc/nginx/sites-available/dulcearte` y habilítalo:
+Comandos de comprobación:
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/dulcearte /etc/nginx/sites-enabled/dulcearte
-sudo chown -R root:www-data /opt/dulcearte
-sudo chmod -R g+rX /opt/dulcearte
-sudo chown -R www-data:www-data /opt/dulcearte/media
-sudo chmod -R u+rwX,g+rwX /opt/dulcearte/media
-```
-
-Valida la configuración y activa los servicios:
-
-```bash
-sudo nginx -t
-sudo systemctl daemon-reload
-sudo systemctl enable --now dulcearte
-sudo systemctl reload nginx
 sudo systemctl status dulcearte --no-pager
+sudo systemctl status nginx --no-pager
+sudo nginx -t
 ```
 
-Comprueba `http://IP_PUBLICA_EC2/`, el inicio de sesión y `/admin/`. Si configuras HTTPS con un dominio y certificado, agrega el dominio a `DJANGO_ALLOWED_HOSTS`, cambia `DJANGO_SECURE_COOKIES=True` y reinicia el servicio. Guarda la IP real y los pasos ejecutados en este README antes de entregar; no inventes una IP mientras no despliegues.
+Para aplicar cambios de código o configuración del servicio, cuando corresponda:
 
-El ejemplo de Nginx anterior sirve HTTP para facilitar la primera comprobación y **no cifra credenciales ni sesiones en tránsito**. Antes de usar datos reales o presentar un servicio público con seguridad completa, configura TLS en Nginx (por ejemplo, con un dominio y un certificado), redirige el puerto 80 a HTTPS y define también `DJANGO_SECURE_SSL_REDIRECT=True` y `DJANGO_SECURE_COOKIES=True` en `/etc/dulcearte.env`. El código activa HSTS solo cuando está habilitada la redirección a HTTPS.
+```bash
+sudo systemctl restart dulcearte
+sudo systemctl reload nginx
+```
 
-## Preparación de la defensa práctica
+### 5. HTTPS y certificado
 
-1. Inicia sesión y muestra resumen y tablero Kanban.
-2. Crea cliente, insumo(s) y un pedido con BOM; revisa el cálculo de la cotización.
-3. Envía y aprueba la cotización; demuestra que el pedido no puede producirse antes de aprobarse.
-4. Intenta avanzar con stock insuficiente y verifica que pedido e inventario permanecen iguales.
-5. Repón stock con una **entrada de bodega**, avanza a **En Preparación** y muestra el descuento BOM en el historial; continúa las etapas hasta **Listo** y el historial de trazabilidad.
-6. Planifica una ruta para el pedido listo y registra la confirmación (firma textual/comprobante o imagen).
-7. Muestra filtros/búsqueda en Admin y la API autenticada.
-8. Explica las vistas 4+1: lógica (modelos/reglas), desarrollo (apps Django), proceso (solicitud HTTP y transacción), física (EC2, Nginx, Gunicorn y PostgreSQL), escenarios (ciclo de pedido y entrega). Muestra además los grupos de rol y los movimientos de inventario asociados a la fabricación.
+Se configuró Nginx para redirigir HTTP a HTTPS. El certificado de Let's Encrypt se emitió para `32.200.108.64` mediante validación webroot y perfil de corta duración. Se comprobó la conexión HTTPS y se ejecutó exitosamente una simulación de renovación con Certbot.
 
-La prueba escrita indicada en la pauta es independiente del código: son 20 preguntas de selección múltiple y representa el 40% de la evaluación.
+Comprobaciones realizadas:
 
-## Validación automatizada
+```bash
+curl -I https://32.200.108.64
+sudo certbot renew --dry-run
+```
 
-```powershell
+La respuesta `302 Found` hacia `/accounts/login/?next=/` es esperada cuando se solicita la página sin una sesión autenticada. La simulación de renovación finalizó correctamente.
+
+**Importante:** la renovación real del certificado debe estar programada y Nginx debe recargar los certificados renovados. Revisar periódicamente el vencimiento, especialmente por tratarse de un certificado de corta duración y una IP pública no estática.
+
+## Validaciones y pruebas
+
+En el entorno de desarrollo:
+
+```bash
 python manage.py check
 python manage.py test
 python manage.py makemigrations --check --dry-run
 ```
 
-Las pruebas de esta entrega se ejecutaron con la base SQLite de desarrollo, no contra PostgreSQL ni en AWS.
+Antes de la defensa, repetir las pruebas que correspondan en el entorno de AWS y comprobar la disponibilidad pública del sitio, del panel Admin y de los endpoints autenticados. Los resultados deben mostrarse con evidencia real; no se asume que las pruebas automatizadas se hayan ejecutado en producción.
+
+## Guion de defensa práctica
+
+1. Abrir la URL pública HTTPS e iniciar sesión.
+2. Mostrar el tablero de pedidos y el panel Django Admin.
+3. Registrar un cliente, insumos y un pedido personalizado.
+4. Agregar materiales BOM y calcular la cotización.
+5. Enviar y aprobar la cotización; mostrar que no se puede producir sin aprobación.
+6. Demostrar el bloqueo por inventario insuficiente y registrar una entrada de bodega.
+7. Avanzar el pedido por las etapas de producción y comprobar el descuento de insumos y el historial.
+8. Planificar el despacho y registrar el comprobante de entrega.
+9. Mostrar las rutas de la API REST, los permisos por roles y las migraciones de PostgreSQL.
+10. Explicar la arquitectura 4+1 y el despliegue EC2 → Nginx → Gunicorn → Django → PostgreSQL.
+
+## Uso de inteligencia artificial
+
+El archivo [`prompts_ia.md`](prompts_ia.md) registra las consultas y apoyos de herramientas de inteligencia artificial utilizados durante el desarrollo, la revisión de código y el despliegue, conforme a los requisitos de la evaluación.
+
+## Entrega
+
+La entrega consiste en el enlace al repositorio GitHub, el código fuente completo, `README.md`, `prompts_ia.md` y la aplicación pública operativa en AWS EC2. La evaluación también contempla una defensa individual y una prueba escrita de selección múltiple.
+
+**No subir al repositorio:** `.env`, contraseñas, claves SSH, secretos de Django, credenciales de AWS ni archivos privados de producción.
