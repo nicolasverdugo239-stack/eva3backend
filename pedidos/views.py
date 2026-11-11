@@ -108,13 +108,43 @@ def order_edit(request, pk):
         form = OrderForm(request.POST, instance=order)
         formset = MaterialFormSet(request.POST, instance=order, prefix="materials")
         if form.is_valid() and formset.is_valid():
-            updated_order = form.save()
-            formset.save()
-            if updated_order.quote_status == Order.QuoteStatus.REJECTED:
-                updated_order.quote_status = Order.QuoteStatus.DRAFT
-                updated_order.save(update_fields=["quote_status", "updated_at"])
-            messages.success(request, "Pedido actualizado.")
-            return redirect("order_detail", pk=order.pk)
+            with transaction.atomic():
+                locked_order = Order.objects.select_for_update().get(pk=order.pk)
+
+                if (
+                    locked_order.inventory_reserved
+                    or locked_order.status != Order.Status.RECEIVED
+                    or locked_order.quote_status in (
+                        Order.QuoteStatus.SENT,
+                        Order.QuoteStatus.APPROVED,
+                    )
+                ):
+                    messages.error(request, "El pedido cambió y ya no se puede editar.")
+                    return redirect("order_detail", pk=order.pk)
+
+                form.instance = locked_order
+                new_price = form.cleaned_data.get("sale_price")
+                total_paid = locked_order.total_paid
+
+                if total_paid > 0 and (
+                    new_price is None or new_price < total_paid
+                ):
+                    messages.error(
+                        request,
+                        f"El precio no puede ser inferior a los ${total_paid} ya abonados."
+                    )
+                    return redirect("order_detail", pk=locked_order.pk)
+
+                updated_order = form.save()
+                formset.instance = updated_order
+                formset.save()
+
+                if updated_order.quote_status == Order.QuoteStatus.REJECTED:
+                    updated_order.quote_status = Order.QuoteStatus.DRAFT
+                    updated_order.save(update_fields=["quote_status", "updated_at"])
+
+                messages.success(request, "Pedido actualizado.")
+                return redirect("order_detail", pk=order.pk)
     else:
         form = OrderForm(instance=order)
         formset = MaterialFormSet(instance=order, prefix="materials")
@@ -127,6 +157,13 @@ def order_detail(request, pk):
         Order.objects.select_related("customer").prefetch_related("materials__ingredient", "history__changed_by"),
         pk=pk,
     )
+    from .payment_forms import PaymentForm
+    from .roles import has_role
+
+    payment_form = PaymentForm()
+    can_register_payment = has_role(request.user, SALES)
+    payments = order.payments.select_related("created_by").all()
+
     next_status = None
     next_status_label = None
     if order.status in KANBAN_STATUSES:
@@ -138,7 +175,10 @@ def order_detail(request, pk):
         request,
         "pedidos/order_detail.html",
         {"order": order, "kanban_statuses": KANBAN_STATUSES, "next_status": next_status,
-         "next_status_label": next_status_label},
+         "next_status_label": next_status_label,
+         "payment_form": payment_form,
+         "can_register_payment": can_register_payment,
+         "payments": payments},
     )
 
 

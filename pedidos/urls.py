@@ -2,7 +2,7 @@
 from django.urls import path
 
 from . import views
-from . import notification_views
+from . import notification_views, payment_views
 
 urlpatterns = [
     path("notificaciones/marcar-leida/", notification_views.mark_notification_read, name="mark_notification_read"),
@@ -16,6 +16,13 @@ urlpatterns = [
     path("pedidos/<int:pk>/eliminar/", views.order_delete, name="order_delete"),
     path("pedidos/<int:pk>/estado/", views.order_transition, name="order_transition"),
     path("pedidos/<int:pk>/cotizacion/", views.order_quote, name="order_quote"),
+
+    # PAGOS Y ABONOS
+    path(
+        "pedidos/<int:pk>/pagos/nuevo/",
+        payment_views.order_payment_create,
+        name="order_payment_create",
+    ),
 
     # CLIENTES
     path("clientes/", views.customer_list, name="customer_list"),

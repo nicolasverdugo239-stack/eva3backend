@@ -80,6 +80,7 @@ class OrderForm(StyledModelForm):
             "delivery_address",
             "notes",
             "labor_cost",
+            "sale_price",
         ]
 
         widgets = {
@@ -98,6 +99,27 @@ class OrderForm(StyledModelForm):
             "%Y-%m-%dT%H:%M",
             "%Y-%m-%d %H:%M:%S",
         ]
+
+    def clean_sale_price(self):
+        value = self.cleaned_data.get("sale_price")
+
+        if not self.instance.pk:
+            return value
+
+        total_paid = self.instance.total_paid
+
+        if total_paid > 0:
+            if value is None:
+                raise forms.ValidationError(
+                    "No puedes eliminar el precio de un pedido con abonos."
+                )
+
+            if value < total_paid:
+                raise forms.ValidationError(
+                    f"El precio no puede ser inferior a los ${total_paid} ya abonados."
+                )
+
+        return value
 
     def clean_delivery_at(self):
         from django.utils import timezone

@@ -130,6 +130,16 @@ class Order(models.Model):
     labor_cost = models.DecimalField(
         "mano de obra", max_digits=10, decimal_places=2, default=0, validators=[MinValueValidator(Decimal("0"))]
     )
+    sale_price = models.DecimalField(
+        "precio de venta acordado",
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(Decimal("0"))],
+        help_text="Precio final acordado con el cliente.",
+    )
+
     quote_status = models.CharField(
         "estado de cotización", max_length=10, choices=QuoteStatus.choices, default=QuoteStatus.DRAFT
     )
@@ -150,6 +160,37 @@ class Order(models.Model):
         if not self.number:
             self.number = f"DA-{timezone.localdate():%y%m%d}-{uuid.uuid4().hex[:6].upper()}"
         super().save(*args, **kwargs)
+
+    @property
+    def total_paid(self):
+        from django.db.models import Sum
+
+        return self.payments.aggregate(
+            total=Sum("amount")
+        )["total"] or Decimal("0.00")
+
+    @property
+    def balance_due(self):
+        if self.sale_price is None:
+            return None
+
+        return max(
+            self.sale_price - self.total_paid,
+            Decimal("0.00"),
+        )
+
+    @property
+    def payment_status(self):
+        if self.sale_price is None:
+            return "SIN_PRECIO"
+
+        if self.total_paid == 0:
+            return "PENDIENTE"
+
+        if self.total_paid < self.sale_price:
+            return "PARCIAL"
+
+        return "PAGADO"
 
     @property
     def quote_total(self):
@@ -296,3 +337,64 @@ class NotificationRead(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.notification_key}"
+
+
+class Payment(models.Model):
+    """Registro de pagos y abonos asociados a un pedido."""
+
+    class Method(models.TextChoices):
+        CASH = "CASH", "Efectivo"
+        TRANSFER = "TRANSFER", "Transferencia"
+        CARD = "CARD", "Tarjeta"
+
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.PROTECT,
+        related_name="payments",
+        verbose_name="pedido",
+    )
+
+    amount = models.DecimalField(
+        "monto abonado",
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.01"))],
+    )
+
+    method = models.CharField(
+        "método de pago",
+        max_length=10,
+        choices=Method.choices,
+    )
+
+    reference = models.CharField(
+        "referencia o comprobante",
+        max_length=120,
+        blank=True,
+    )
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="payments_registered",
+        verbose_name="registrado por",
+    )
+
+    created_at = models.DateTimeField(
+        "fecha del pago",
+        auto_now_add=True,
+    )
+
+    class Meta:
+        ordering = ["-created_at", "-pk"]
+        verbose_name = "pago"
+        verbose_name_plural = "pagos"
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(amount__gt=0),
+                name="payment_amount_positive",
+            ),
+        ]
+
+    def __str__(self):
+        return f"Pago de ${self.amount} - {self.order.number}"

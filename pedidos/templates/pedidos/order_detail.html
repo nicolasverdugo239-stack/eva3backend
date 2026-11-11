@@ -121,6 +121,88 @@
     <div class="detail-row inventory-state"><span>Descuento de inventario</span><strong>{% if order.inventory_reserved %}Aplicado{% else %}Pendiente al iniciar producción{% endif %}</strong></div>
   </section>
 </div>
+<!-- INICIO GESTION DE PAGOS -->
+
+<section class="panel">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">GESTIÓN FINANCIERA</p>
+      <h2>Pagos y abonos</h2>
+    </div>
+  </div>
+
+  {% if order.sale_price != None %}
+    <div class="detail-row">
+      <span>Precio de venta</span>
+      <strong>${{ order.sale_price|floatformat:0 }}</strong>
+    </div>
+
+    <div class="detail-row">
+      <span>Total abonado</span>
+      <strong>${{ order.total_paid|floatformat:0 }}</strong>
+    </div>
+
+    <div class="quote-total">
+      <span>Saldo pendiente</span>
+      <strong>${{ order.balance_due|floatformat:0 }}</strong>
+    </div>
+
+    <div class="detail-row">
+      <span>Estado del pago</span>
+      <strong>
+        {% if order.payment_status == "PAGADO" %}
+          Pagado
+        {% elif order.payment_status == "PARCIAL" %}
+          Abonado parcialmente
+        {% else %}
+          Pendiente de pago
+        {% endif %}
+      </strong>
+    </div>
+  {% else %}
+    <p class="muted">Este pedido todavía no tiene precio de venta.</p>
+  {% endif %}
+</section>
+
+{% if can_register_payment and order.sale_price != None and order.status != "CANCELLED" %}
+  {% if order.balance_due > 0 %}
+    <section class="panel">
+      <h2>Registrar nuevo abono</h2>
+      <form method="post" action="{% url 'order_payment_create' order.pk %}">
+        {% csrf_token %}
+        {{ payment_form.as_p }}
+        <button class="button primary" type="submit">
+          Registrar abono
+        </button>
+      </form>
+    </section>
+  {% endif %}
+{% endif %}
+
+<section class="panel">
+  <h2>Historial de pagos</h2>
+
+  {% for payment in payments %}
+    <div class="detail-row">
+      <span>
+        {{ payment.created_at|date:"d/m/Y H:i" }}
+        · {{ payment.get_method_display }}
+      </span>
+      <strong>${{ payment.amount|floatformat:0 }}</strong>
+    </div>
+
+    <p class="muted small">
+      Registrado por: {{ payment.created_by.username }}
+      {% if payment.reference %}
+        · Comprobante: {{ payment.reference }}
+      {% endif %}
+    </p>
+  {% empty %}
+    <p class="muted">Todavía no hay pagos registrados.</p>
+  {% endfor %}
+</section>
+<!-- FIN GESTION DE PAGOS -->
+
 <section class="panel history-panel">
   <div class="section-heading">
     <div>
