@@ -1,38 +1,581 @@
+
 {% load static %}
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Dulce Arte{% endblock %} · Dulce Arte</title>
-  <link rel="stylesheet" href="{% static 'pedidos/app.css' %}">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Dulce Arte{% endblock %} · Dulce Arte</title>
+    <link rel="stylesheet" href="{% static 'pedidos/app.css' %}">
+
+    <style>
+        :root {
+            --da-rose: #a04764;
+            --da-dark: #302831;
+            --da-cream: #faf7f5;
+        }
+
+        body {
+            margin: 0;
+            background: var(--da-cream);
+        }
+
+        body:has(.da-layout) {
+            display: block;
+        }
+
+        .da-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .da-sidebar {
+            width: 250px;
+            flex: 0 0 250px;
+            background: #fff;
+            border-right: 1px solid #eee5e8;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            box-sizing: border-box;
+            padding: 25px 15px;
+            overflow-y: auto;
+        }
+
+        .da-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--da-dark);
+            padding: 5px 10px 25px;
+        }
+
+        .da-brand-mark {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: var(--da-rose);
+            color: white;
+            display: grid;
+            place-items: center;
+            font-size: 23px;
+            font-weight: bold;
+        }
+
+        .da-brand strong {
+            display: block;
+            font-size: 17px;
+        }
+
+        .da-brand small {
+            display: block;
+            font-size: 11px;
+            color: #92858c;
+        }
+
+        .da-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .da-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            color: #5e535b;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background .2s, color .2s;
+        }
+
+        .da-nav a:hover,
+        .da-nav a.active {
+            background: #f8eaf0;
+            color: var(--da-rose);
+        }
+
+        .da-nav a svg,
+        .da-logout svg {
+            width: 19px;
+            height: 19px;
+            flex-shrink: 0;
+        }
+
+        .da-nav-title {
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            color: #aa9aa3;
+            margin: 25px 14px 10px;
+        }
+
+        .da-sidebar-bottom {
+            margin-top: auto;
+            border-top: 1px solid #eee5e8;
+            padding-top: 18px;
+        }
+
+        .da-username {
+            font-size: 12px;
+            color: #8b7d85;
+            padding: 0 14px 10px;
+            overflow-wrap: anywhere;
+        }
+
+        .da-logout {
+            width: 100%;
+            border: 0;
+            background: transparent;
+            color: #a04764;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        .da-logout:hover {
+            background: #f8eaf0;
+        }
+
+        .da-main {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .da-main .page {
+            flex: 1;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .da-main .footer {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .da-mobile-header {
+            display: none;
+        }
+
+        @media (max-width: 800px) {
+            .da-layout {
+                display: block;
+            }
+
+            .da-sidebar {
+                position: static;
+                width: 100%;
+                height: auto;
+                padding: 10px 12px;
+                border-right: 0;
+                border-bottom: 1px solid #eee5e8;
+            }
+
+            .da-brand {
+                padding: 5px 8px 12px;
+            }
+
+            .da-nav {
+                flex-direction: row;
+                overflow-x: auto;
+                padding-bottom: 6px;
+            }
+
+            .da-nav a {
+                white-space: nowrap;
+                flex-shrink: 0;
+                padding: 10px;
+                font-size: 12px;
+            }
+
+            .da-nav-title {
+                display: none;
+            }
+
+            .da-sidebar-bottom {
+                margin-top: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding-top: 8px;
+            }
+
+            .da-username {
+                padding: 0 8px;
+            }
+
+            .da-logout {
+                width: auto;
+            }
+        }
+    
+    /* DULCE ARTE SIDEBAR V3 */
+    .da-sidebar {
+        background: #ffffff;
+        border-right: 1px solid #eee9ef;
+        box-shadow: 4px 0 25px rgba(40, 25, 40, .025);
+    }
+
+    .da-brand {
+        margin-bottom: 12px;
+    }
+
+    .da-brand-mark {
+        background: linear-gradient(135deg, #b65b79, #8e3655);
+        box-shadow: 0 6px 16px rgba(160, 71, 100, .20);
+    }
+
+    .da-nav a {
+        border: 1px solid transparent;
+        transition: background .2s, color .2s, transform .2s;
+    }
+
+    .da-nav a:hover {
+        background: #faf0f4;
+        color: #963c5b;
+        transform: translateX(2px);
+    }
+
+    .da-nav a.active {
+        background: #f8e8ef;
+        border-color: #efd4df;
+        color: #963c5b;
+        font-weight: 700;
+    }
+
+    .da-nav a.active svg {
+        stroke-width: 2.5;
+    }
+
+    .da-sidebar-bottom {
+        background: #faf7f9;
+        border: 1px solid #f0e7ed;
+        border-radius: 14px;
+        padding: 12px;
+    }
+
+    .da-user-profile {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 3px 0 12px;
+    }
+
+    .da-user-avatar {
+        display: grid;
+        place-items: center;
+        width: 36px;
+        height: 36px;
+        flex-shrink: 0;
+        border-radius: 11px;
+        background: #f1dce5;
+        color: #8e3655;
+        font-weight: 800;
+        font-size: 15px;
+        text-transform: uppercase;
+    }
+
+    .da-user-profile .da-username {
+        padding: 0;
+        font-weight: 700;
+        color: #40333d;
+    }
+
+    .da-user-profile small {
+        display: block;
+        color: #968590;
+        font-size: 10px;
+        margin-top: 3px;
+    }
+
+    .da-notification-trigger {
+        border-radius: 11px;
+    }
+
+    .da-notification-panel {
+        border: 1px solid #eee2e8;
+        box-shadow: 0 12px 30px rgba(45, 28, 45, .08);
+    }
+
+    @media (max-width: 800px) {
+        .da-sidebar-bottom {
+            background: transparent;
+            border: 0;
+        }
+    }
+    
+</style>
+
+<style>
+.da-notification-center {
+    margin: 10px 0;
+    font-family: inherit;
+}
+.da-notification-details {
+    position: relative;
+}
+.da-notification-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 13px 15px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: inherit;
+    list-style: none;
+    transition: background .2s;
+}
+.da-notification-trigger::-webkit-details-marker {
+    display: none;
+}
+.da-notification-trigger:hover,
+.da-notification-details[open] .da-notification-trigger {
+    background: rgba(160, 71, 100, .10);
+}
+.da-notification-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.da-notification-badge {
+    background: #b83e62;
+    color: white;
+    border-radius: 999px;
+    min-width: 23px;
+    height: 23px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 6px;
+    font-size: 12px;
+    font-weight: 700;
+}
+.da-notification-panel {
+    margin: 8px 0 12px;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #eadce1;
+    border-radius: 12px;
+    color: #302831;
+    box-shadow: 0 5px 18px rgba(0,0,0,.07);
+    max-height: 340px;
+    overflow-y: auto;
+}
+.da-notification-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 10px;
+    border-bottom: 1px solid #f1e8ec;
+}
+.da-notification-heading small {
+    color: #8d7b84;
+}
+.da-notification-item {
+    display: block;
+    padding: 12px 10px;
+    border-bottom: 1px solid #f5eef1;
+    border-radius: 8px;
+    color: #302831;
+    text-decoration: none;
+}
+.da-notification-item:hover {
+    background: #fcf2f6;
+}
+.da-notification-item-title {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 13px;
+}
+.da-notification-number {
+    color: #a04764;
+}
+.da-notification-item small {
+    display: block;
+    margin-top: 5px;
+    color: #82737b;
+    font-size: 12px;
+    line-height: 1.5;
+}
+.da-notification-empty {
+    padding: 16px 10px;
+    color: #6f826f;
+    font-size: 13px;
+}
+</style>
+
 </head>
+
 <body>
-  {% if user.is_authenticated %}
-  <header class="topbar">
-    <a class="brand" href="{% url 'dashboard' %}"><span class="brand-mark">D</span><span>Dulce Arte<small>Gestión de pedidos</small></span></a>
-    <nav>
-      <a href="{% url 'dashboard' %}">Resumen</a>
-      <a href="{% url 'order_list' %}">Tablero</a>
-      <a href="{% url 'customer_list' %}">Clientes</a>
-      <a href="{% url 'ingredient_list' %}">Bodega</a>
-      <a href="{% url 'inventory_movement_list' %}">Movimientos</a>
-      <a href="{% url 'dispatch_list' %}">Despachos</a>
-      <a href="/admin/">Administración</a>
-    </nav>
-    <form method="post" action="{% url 'logout' %}" class="logout-form">
-      {% csrf_token %}<span>{{ user.username }}</span><button class="link-button" type="submit">Salir</button>
-    </form>
-  </header>
-  {% endif %}
-  <main class="page">
-    {% if messages %}
-      <section class="messages">
-        {% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}
-      </section>
-    {% endif %}
-    {% block content %}{% endblock %}
-  </main>
-  <footer class="footer">Dulce Arte · Trazabilidad de pedidos y producción</footer>
+{% if user.is_authenticated %}
+<div class="da-layout">
+
+    <aside class="da-sidebar">
+        <a href="{% url 'dashboard' %}" class="da-brand">
+            <span class="da-brand-mark">D</span>
+            <span>
+                <strong>Dulce Arte</strong>
+                <small>Gestión de pedidos</small>
+            </span>
+        </a>
+
+        <nav class="da-nav" aria-label="Menú principal">
+            <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                Resumen
+            </a>
+
+            <a href="{% url 'order_list' %}" class="{% if request.resolver_match.url_name == 'order_list' %}active{% endif %}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 4v16"/></svg>
+                Tablero
+            </a>
+
+            <a href="{% url 'customer_list' %}" class="{% if request.resolver_match.url_name == 'customer_list' %}active{% endif %}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M17 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 5"/></svg>
+                Clientes
+            </a>
+
+            <a href="{% url 'ingredient_list' %}" class="{% if request.resolver_match.url_name == 'ingredient_list' %}active{% endif %}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l9-4 9 4v10l-9 4-9-4zM3 7l9 5 9-5M12 12v9"/></svg>
+                Bodega
+            </a>
+
+            <a href="{% url 'inventory_movement_list' %}" class="{% if request.resolver_match.url_name == 'inventory_movement_list' %}active{% endif %}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16m-4-4 4 4-4 4M20 17H4m4-4-4 4 4 4"/></svg>
+                Movimientos
+            </a>
+
+            <a href="{% url 'dispatch_list' %}" class="{% if request.resolver_match.url_name == 'dispatch_list' %}active{% endif %}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h11v11H3zM14 10h4l3 4v3h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+                Despachos
+            </a>
+
+            {% if user.is_superuser %}
+            <span class="da-nav-title">ADMINISTRACIÓN</span>
+
+            <a href="{% url 'trabajador_list' %}" class="{% if request.resolver_match.url_name == 'trabajador_list' %}active{% endif %}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M17 8h5M19.5 5.5v5"/></svg>
+                Trabajadores
+            </a>
+
+            <a href="/admin/">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2M19 5l-2 2M7 17l-2 2"/></svg>
+                Administración
+            </a>
+            {% endif %}
+
+            <div id="da-notification-center" class="da-notification-center">
+                <details class="da-notification-details">
+                    <summary class="da-notification-trigger">
+                        <span class="da-notification-title">
+                            <span aria-hidden="true">🔔</span>
+                            Notificaciones
+                        </span>
+                        {% if notification_count %}
+                        <span class="da-notification-badge">{{ notification_count }}</span>
+                        {% endif %}
+                    </summary>
+
+                    <div class="da-notification-panel">
+                        <div class="da-notification-heading">
+                            <strong>Centro de notificaciones</strong>
+                            <small>{{ notification_count }} tipo{{ notification_count|pluralize }} de alerta</small>
+                        </div>
+
+                        {% for notification in user_notifications %}
+                        <div class="da-notification-item">
+                            <a href="{{ notification.url }}" class="da-notification-item-title">
+                                {{ notification.title }}
+                                <span class="da-notification-number">{{ notification.count }}</span>
+                            </a>
+                            <small>{{ notification.message }}</small>
+
+                            {% if notification.is_read %}
+                            <small style="color:#34805c;font-weight:600;margin-top:8px;">
+                                ✓ Leída
+                            </small>
+                            {% else %}
+                            <form method="post" action="{% url 'mark_notification_read' %}" style="margin-top:10px;">
+                                {% csrf_token %}
+                                <input type="hidden" name="notification_key" value="{{ notification.key }}">
+                                <button type="submit" style="background:#a04764;color:#fff;border:0;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:12px;">
+                                    ✓ Marcar como leída
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                        {% empty %}
+                        <div class="da-notification-empty">
+                            ✓ No tienes alertas pendientes.
+                        </div>
+                        {% endfor %}
+                    </div>
+                </details>
+            </div>
+        </nav>
+
+        <div class="da-sidebar-bottom">
+            <div class="da-user-profile">
+                <span class="da-user-avatar">{{ user.username|first|upper }}</span>
+                <div>
+                    <div class="da-username">{{ user.username }}</div>
+                    <small>Sesión activa</small>
+                </div>
+            </div>
+
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="da-logout">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 17l5-5-5-5M15 12H3M12 3h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7"/></svg>
+                    Cerrar sesión
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <div class="da-main">
+{% endif %}
+
+        <main class="page">
+            {% if messages %}
+            <section class="messages">
+                {% for message in messages %}
+                    <div class="message {{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </section>
+            {% endif %}
+
+            {% block content %}
+            {% endblock %}
+        </main>
+
+        <footer class="footer">
+            Dulce Arte · Trazabilidad de pedidos y producción
+        </footer>
+
+{% if user.is_authenticated %}
+    </div>
+</div>
+{% endif %}
 </body>
 </html>

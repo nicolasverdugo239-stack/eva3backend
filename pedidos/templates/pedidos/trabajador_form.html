@@ -1,0 +1,58 @@
+
+{% extends "pedidos/base.html" %}
+
+{% block title %}Crear trabajador{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">ADMINISTRACIÓN</p>
+        <h1>Crear trabajador</h1>
+        <p class="muted">Registra una nueva cuenta y asigna su rol.</p>
+    </div>
+    <a class="button secondary" href="{% url 'trabajador_list' %}">
+        Volver
+    </a>
+</div>
+
+<section class="panel form-panel">
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="message error">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="form-grid">
+            {% for field in form %}
+                <div class="field">
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+                    {% if field.help_text %}
+                        <small>{{ field.help_text }}</small>
+                    {% endif %}
+
+                    {% for error in field.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="form-actions">
+            <a class="button secondary" href="{% url 'trabajador_list' %}">
+                Cancelar
+            </a>
+            <button class="button primary" type="submit">
+                Crear trabajador
+            </button>
+        </div>
+    </form>
+</section>
+{% endblock %}

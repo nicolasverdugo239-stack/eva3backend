@@ -164,6 +164,23 @@ class Order(models.Model):
         return materials
 
     @property
+    def delivery_alert(self):
+        from datetime import timedelta
+
+        if self.status in (self.Status.READY, self.Status.CANCELLED):
+            return "completed"
+
+        now = timezone.now()
+
+        if self.delivery_at < now:
+            return "overdue"
+
+        if self.delivery_at <= now + timedelta(hours=24):
+            return "soon"
+
+        return "on_time"
+
+    @property
     def kanban_index(self):
         statuses = [self.Status.RECEIVED, self.Status.PREPARING, self.Status.BAKED, self.Status.QUALITY, self.Status.READY]
         return statuses.index(self.status) if self.status in statuses else -1
@@ -250,3 +267,32 @@ class Dispatch(models.Model):
 
     def __str__(self):
         return f"Despacho {self.order.number} · {self.get_status_display()}"
+
+
+class NotificationRead(models.Model):
+    """Registra las alertas leídas por cada usuario."""
+
+    user = models.ForeignKey(
+        "auth.User",
+        on_delete=models.CASCADE,
+        related_name="read_notifications",
+    )
+
+    notification_key = models.CharField(
+        max_length=120,
+    )
+
+    read_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "notification_key"],
+                name="unique_notification_read_per_user",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.user} - {self.notification_key}"

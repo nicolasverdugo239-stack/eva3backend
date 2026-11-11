@@ -5,6 +5,93 @@
   <div><a class="back-link" href="{% url 'order_list' %}">← Volver al tablero</a><p class="eyebrow">{{ order.number }}</p><h1>{{ order.product }}</h1><p class="muted">Creado {{ order.created_at|date:"d/m/Y H:i" }} · Entrega {{ order.delivery_at|date:"d/m/Y H:i" }}</p></div>
   {% if order.status == "RECEIVED" and order.quote_status != "SENT" and order.quote_status != "APPROVED" %}<a class="button secondary" href="{% url 'order_edit' order.pk %}">Editar pedido</a>{% endif %}
 </div>
+
+<section class="da-order-tracking">
+
+    <div class="da-tracking-header">
+        <div>
+            <p class="eyebrow">SEGUIMIENTO DEL PEDIDO</p>
+            <h2>Progreso de producción</h2>
+            <p>Estado actual de fabricación del pedido.</p>
+        </div>
+
+        <span class="badge status-{{ order.status|lower }}">
+            {{ order.get_status_display }}
+        </span>
+    </div>
+
+    {% if order.status == "CANCELLED" %}
+
+        <div class="da-tracking-alert da-alert-overdue">
+            Pedido cancelado. Consulta el historial para revisar los cambios.
+        </div>
+
+    {% else %}
+
+        <div class="da-tracking-alert
+            {% if order.delivery_alert == 'overdue' %}
+                da-alert-overdue
+            {% elif order.delivery_alert == 'soon' %}
+                da-alert-soon
+            {% elif order.delivery_alert == 'on_time' %}
+                da-alert-ontime
+            {% else %}
+                da-alert-completed
+            {% endif %}">
+
+            {% if order.delivery_alert == "overdue" %}
+                ⚠ Entrega atrasada. Requiere atención.
+            {% elif order.delivery_alert == "soon" %}
+                ◷ Entrega próxima. Prioriza este pedido.
+            {% elif order.delivery_alert == "on_time" %}
+                ✓ El pedido se encuentra dentro del plazo.
+            {% else %}
+                ✓ Producción terminada.
+            {% endif %}
+
+            <span>Entrega: {{ order.delivery_at|date:"d/m/Y H:i" }}</span>
+        </div>
+
+        <div class="da-progress-track">
+            {% for step in kanban_statuses %}
+                <div class="da-progress-step
+                    {% if forloop.counter0 < order.kanban_index %}
+                        is-done
+                    {% elif forloop.counter0 == order.kanban_index %}
+                        is-current
+                    {% endif %}">
+
+                    <span class="da-progress-dot">
+                        {% if forloop.counter0 < order.kanban_index %}
+                            ✓
+                        {% elif forloop.counter0 == order.kanban_index %}
+                            ●
+                        {% else %}
+                            {{ forloop.counter }}
+                        {% endif %}
+                    </span>
+
+                    <span class="da-progress-label">
+                        {% if step == "RECEIVED" %}
+                            Recibido
+                        {% elif step == "PREPARING" %}
+                            Preparación
+                        {% elif step == "BAKED" %}
+                            Horneado / Decorado
+                        {% elif step == "QUALITY" %}
+                            Control de calidad
+                        {% elif step == "READY" %}
+                            Listo
+                        {% endif %}
+                    </span>
+                </div>
+            {% endfor %}
+        </div>
+
+    {% endif %}
+
+</section>
+
 <div class="detail-grid">
   <section class="panel">
     <div class="section-heading"><div><p class="eyebrow">DETALLE</p><h2>Personalización</h2></div><span class="badge status-{{ order.status|lower }}">{{ order.get_status_display }}</span></div>
@@ -34,7 +121,55 @@
     <div class="detail-row inventory-state"><span>Descuento de inventario</span><strong>{% if order.inventory_reserved %}Aplicado{% else %}Pendiente al iniciar producción{% endif %}</strong></div>
   </section>
 </div>
-<section class="panel history-panel"><div class="section-heading"><div><p class="eyebrow">TRAZABILIDAD</p><h2>Historial de producción</h2></div></div>
-  {% for event in order.history.all %}<div class="history-item"><span class="history-marker"></span><div><strong>{{ event.get_new_status_display }}</strong><p>{{ event.changed_at|date:"d/m/Y H:i" }}{% if event.changed_by %} · {{ event.changed_by.username }}{% endif %}</p></div></div>{% empty %}<p class="muted">El historial aparecerá al iniciar o avanzar la producción.</p>{% endfor %}
+<section class="panel history-panel">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">TRAZABILIDAD</p>
+      <h2>Historial de producción</h2>
+      <p class="muted small">Registro de movimientos y responsables del pedido.</p>
+    </div>
+    <span class="badge">{{ order.history.count }} movimiento{{ order.history.count|pluralize }}</span>
+  </div>
+
+  <div class="history-timeline">
+    {% for event in order.history.all %}
+    <article class="history-event">
+      <span class="history-event-marker" aria-hidden="true"></span>
+
+      <div class="history-event-content">
+        <div class="history-event-header">
+          <strong>{{ event.get_new_status_display }}</strong>
+          <time>{{ event.changed_at|date:"d/m/Y · H:i" }}</time>
+        </div>
+
+        <div class="history-transition">
+          {% if event.previous_status %}
+            <span>{{ event.get_previous_status_display }}</span>
+            <span class="history-arrow">→</span>
+          {% else %}
+            <span class="history-created">Creación del pedido</span>
+            <span class="history-arrow">→</span>
+          {% endif %}
+          <span class="history-current">{{ event.get_new_status_display }}</span>
+        </div>
+
+        <p class="history-responsible">
+          <span>Responsable:</span>
+          {% if event.changed_by %}
+            <strong>{{ event.changed_by.username }}</strong>
+          {% else %}
+            <strong>Usuario no disponible</strong>
+          {% endif %}
+        </p>
+      </div>
+    </article>
+    {% empty %}
+      <div class="history-empty">
+        <span>◷</span>
+        <strong>Sin movimientos registrados</strong>
+        <p>Los cambios de producción aparecerán aquí.</p>
+      </div>
+    {% endfor %}
+  </div>
 </section>
 {% endblock %}

@@ -1,23 +1,332 @@
 {% extends "pedidos/base.html" %}
 {% block title %}Resumen{% endblock %}
+
 {% block content %}
-<div class="page-heading">
-  <div><p class="eyebrow">PANEL DE CONTROL</p><h1>Hola, {{ user.first_name|default:user.username }}</h1><p class="muted">Resumen de producción y entregas de Dulce Arte.</p></div>
-  <a class="button primary" href="{% url 'order_create' %}">＋ Nuevo pedido</a>
+<style>
+.da-dashboard { --rose:#a04764; --ink:#302831; }
+.da-dashboard .page-heading { margin-bottom:25px; }
+.da-dashboard .stats {
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:16px;
+    margin-bottom:24px;
+}
+.da-dashboard .stat-card {
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    background:#fff;
+    border:1px solid #f0e5e9;
+    border-radius:16px;
+    padding:22px;
+    text-decoration:none;
+    color:var(--ink);
+    box-shadow:0 4px 18px rgba(48,40,49,.04);
+    transition:transform .2s,box-shadow .2s;
+}
+.da-dashboard .stat-card:hover {
+    transform:translateY(-3px);
+    box-shadow:0 8px 24px rgba(48,40,49,.09);
+}
+.da-dashboard .stat-icon {
+    display:grid;
+    place-items:center;
+    width:42px;
+    height:42px;
+    border-radius:12px;
+    background:#f8e8ef;
+    color:var(--rose);
+    font-size:22px;
+}
+.da-dashboard .stat-label {
+    color:#766a72;
+    font-size:13px;
+}
+.da-dashboard .stat-card strong {
+    font-size:30px;
+    line-height:1.2;
+    color:var(--ink);
+}
+.da-dashboard .stat-card small {
+    color:#92858c;
+    font-size:12px;
+}
+.da-chart-grid {
+    display:grid;
+    grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);
+    gap:20px;
+    margin-bottom:24px;
+}
+.da-chart-card {
+    background:#fff;
+    border:1px solid #f0e5e9;
+    border-radius:16px;
+    padding:24px;
+    min-width:0;
+    box-shadow:0 4px 18px rgba(48,40,49,.04);
+}
+.da-chart-card h2 {
+    font-size:19px;
+    margin:0 0 5px;
+    color:var(--ink);
+}
+.da-chart-card p {
+    margin:0 0 20px;
+    color:#92858c;
+    font-size:13px;
+}
+.da-chart-area {
+    position:relative;
+    height:270px;
+    width:100%;
+}
+.da-dashboard .inventory-warning {
+    margin-bottom:24px;
+}
+@media(max-width:1100px) {
+    .da-dashboard .stats {
+        grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+    .da-chart-grid {
+        grid-template-columns:1fr;
+    }
+}
+@media(max-width:600px) {
+    .da-dashboard .stats {
+        grid-template-columns:1fr;
+    }
+    .da-chart-card {
+        padding:16px;
+    }
+    .da-chart-area {
+        height:240px;
+    }
+}
+</style>
+
+<div class="da-dashboard">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">PANEL DE CONTROL</p>
+            <h1>Hola, {{ user.first_name|default:user.username }}</h1>
+            <p class="muted">Resumen de producción y entregas de Dulce Arte.</p>
+        </div>
+        <a class="button primary" href="{% url 'order_create' %}">
+            ＋ Nuevo pedido
+        </a>
+    </div>
+
+    <section class="stats">
+        <a class="stat-card" href="{% url 'order_list' %}">
+            <span class="stat-icon">▦</span>
+            <span class="stat-label">Pedidos activos</span>
+            <strong>{{ orders_count }}</strong>
+            <small>Excluye pedidos cancelados</small>
+        </a>
+
+        <a class="stat-card" href="{% url 'order_list' %}">
+            <span class="stat-icon">◷</span>
+            <span class="stat-label">Cotizaciones enviadas</span>
+            <strong>{{ pending_quotes }}</strong>
+            <small>Esperando respuesta</small>
+        </a>
+
+        <a class="stat-card" href="{% url 'order_list' %}">
+            <span class="stat-icon">✦</span>
+            <span class="stat-label">En producción</span>
+            <strong>{{ production_count }}</strong>
+            <small>Preparación a control de calidad</small>
+        </a>
+
+        <a class="stat-card" href="{% url 'dispatch_list' %}">
+            <span class="stat-icon">↗</span>
+            <span class="stat-label">Listos para despacho</span>
+            <strong>{{ ready_to_dispatch }}</strong>
+            <small>{{ dispatches_scheduled }} programados/en ruta · {{ deliveries_completed }} entregados</small>
+        </a>
+    </section>
+
+    {% if low_stock %}
+    <div class="message warning inventory-warning">
+        Hay {{ low_stock }} insumo{{ low_stock|pluralize }}
+        en el mínimo o bajo el nivel de reposición.
+        <a class="table-link" href="{% url 'ingredient_list' %}">
+            Revisar bodega →
+        </a>
+    </div>
+    {% endif %}
+
+    <section class="da-chart-grid">
+        <div class="da-chart-card">
+            <h2>Pedidos de los últimos 7 días</h2>
+            <p>Evolución diaria de nuevos pedidos</p>
+            <div class="da-chart-area">
+                <canvas id="ordersChart" role="img"
+                    aria-label="Gráfico de pedidos creados por día"></canvas>
+            </div>
+        </div>
+
+        <div class="da-chart-card">
+            <h2>Estados de producción</h2>
+            <p>Distribución actual de todos los pedidos</p>
+            <div class="da-chart-area">
+                <canvas id="statusChart" role="img"
+                    aria-label="Gráfico de distribución de pedidos por estado"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">SEGUIMIENTO</p>
+                <h2>Pedidos próximos</h2>
+            </div>
+            <a class="text-link" href="{% url 'order_list' %}">
+                Ver tablero →
+            </a>
+        </div>
+
+        {% if orders %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pedido</th>
+                        <th>Cliente</th>
+                        <th>Producto</th>
+                        <th>Entrega</th>
+                        <th>Producción</th>
+                        <th>Cotización</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>
+                            <a class="table-link"
+                               href="{% url 'order_detail' order.pk %}">
+                                {{ order.number }}
+                            </a>
+                        </td>
+                        <td>{{ order.customer.name }}</td>
+                        <td>{{ order.product }}</td>
+                        <td>{{ order.delivery_at|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            <span class="badge status-{{ order.status|lower }}">
+                                {{ order.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge quote-{{ order.quote_status|lower }}">
+                                {{ order.get_quote_status_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <span>✿</span>
+            <h3>Aún no hay pedidos</h3>
+            <p>Registra el primer pedido personalizado para comenzar.</p>
+            <a class="button primary" href="{% url 'order_create' %}">
+                Crear pedido
+            </a>
+        </div>
+        {% endif %}
+    </section>
 </div>
-<section class="stats">
-  <a class="stat-card" href="{% url 'order_list' %}"><span class="stat-icon">▦</span><span class="stat-label">Pedidos activos</span><strong>{{ orders_count }}</strong><small>En todo el flujo</small></a>
-  <a class="stat-card" href="{% url 'order_list' %}"><span class="stat-icon amber">◷</span><span class="stat-label">Cotizaciones enviadas</span><strong>{{ pending_quotes }}</strong><small>Esperando respuesta</small></a>
-  <a class="stat-card" href="{% url 'order_list' %}"><span class="stat-icon purple">✦</span><span class="stat-label">En producción</span><strong>{{ production_count }}</strong><small>Preparación a calidad</small></a>
-  <a class="stat-card" href="{% url 'dispatch_list' %}"><span class="stat-icon green">↗</span><span class="stat-label">Listos para despacho</span><strong>{{ ready_to_dispatch }}</strong><small>{{ dispatches_scheduled }} en ruta · {{ deliveries_completed }} entregados</small></a>
-</section>
-{% if low_stock %}<div class="message warning inventory-warning">Hay {{ low_stock }} insumo{{ low_stock|pluralize }} en el mínimo o bajo el nivel de reposición. <a class="table-link" href="{% url 'ingredient_list' %}">Revisar bodega →</a></div>{% endif %}
-<section class="panel">
-  <div class="section-heading"><div><p class="eyebrow">SEGUIMIENTO</p><h2>Pedidos próximos</h2></div><a class="text-link" href="{% url 'order_list' %}">Ver tablero →</a></div>
-  {% if orders %}
-  <div class="table-wrap"><table><thead><tr><th>Pedido</th><th>Cliente</th><th>Producto</th><th>Entrega</th><th>Producción</th><th>Cotización</th></tr></thead><tbody>
-  {% for order in orders %}<tr><td><a class="table-link" href="{% url 'order_detail' order.pk %}">{{ order.number }}</a></td><td>{{ order.customer.name }}</td><td>{{ order.product }}</td><td>{{ order.delivery_at|date:"d/m/Y H:i" }}</td><td><span class="badge status-{{ order.status|lower }}">{{ order.get_status_display }}</span></td><td><span class="badge quote-{{ order.quote_status|lower }}">{{ order.get_quote_status_display }}</span></td></tr>{% endfor %}
-  </tbody></table></div>
-  {% else %}<div class="empty-state"><span>✿</span><h3>Aún no hay pedidos</h3><p>Registra el primer pedido personalizado para comenzar.</p><a class="button primary" href="{% url 'order_create' %}">Crear pedido</a></div>{% endif %}
-</section>
+
+{{ orders_chart|json_script:"orders-chart-data" }}
+{{ status_chart|json_script:"status-chart-data" }}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+    if (typeof Chart === "undefined") {
+        console.error("No se pudo cargar Chart.js");
+        return;
+    }
+
+    const orders = JSON.parse(
+        document.getElementById("orders-chart-data").textContent
+    );
+
+    const statuses = JSON.parse(
+        document.getElementById("status-chart-data").textContent
+    );
+
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false }
+        }
+    };
+
+    new Chart(document.getElementById("ordersChart"), {
+        type: "bar",
+        data: {
+            labels: orders.labels,
+            datasets: [{
+                label: "Pedidos",
+                data: orders.values,
+                backgroundColor: "#a04764",
+                borderRadius: 7,
+                maxBarThickness: 45
+            }]
+        },
+        options: {
+            ...commonOptions,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
+    new Chart(document.getElementById("statusChart"), {
+        type: "doughnut",
+        data: {
+            labels: statuses.labels,
+            datasets: [{
+                data: statuses.values,
+                backgroundColor: [
+                    "#d8a7b7",
+                    "#a04764",
+                    "#e6b86b",
+                    "#8f80b9",
+                    "#78b59b",
+                    "#b8b8b8"
+                ],
+                borderWidth: 2,
+                borderColor: "#ffffff"
+            }]
+        },
+        options: {
+            ...commonOptions,
+            cutout: "65%",
+            plugins: {
+                legend: {
+                    display: true,
+                    position: "bottom",
+                    labels: {
+                        boxWidth: 12,
+                        padding: 12,
+                        font: { size: 11 }
+                    }
+                }
+            }
+        }
+    });
+})();
+</script>
 {% endblock %}

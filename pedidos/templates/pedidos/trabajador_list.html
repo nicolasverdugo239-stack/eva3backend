@@ -1,0 +1,64 @@
+
+{% extends "pedidos/base.html" %}
+
+{% block title %}Gestión de trabajadores{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">ADMINISTRACIÓN</p>
+        <h1>Gestión de trabajadores</h1>
+        <p class="muted">Consulta las cuentas y los roles del personal.</p>
+    </div>
+
+    <a class="button primary" href="{% url 'trabajador_create' %}">
+        + Nuevo trabajador
+    </a>
+</div>
+
+<section class="panel">
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for trabajador in trabajadores %}
+                <tr>
+                    <td><strong>{{ trabajador.username }}</strong></td>
+                    <td>{{ trabajador.get_full_name|default:"—" }}</td>
+                    <td>{{ trabajador.email|default:"—" }}</td>
+                    <td>
+                        {% for grupo in trabajador.groups.all %}
+                            <span class="badge">{{ grupo.name }}</span>
+                        {% empty %}
+                            Sin rol
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% if trabajador.is_active %}
+                            <span class="badge delivered">Activo</span>
+                        {% else %}
+                            <span class="badge low-stock">Inactivo</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="empty-row">
+                        No hay trabajadores registrados.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

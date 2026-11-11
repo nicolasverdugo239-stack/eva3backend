@@ -5,3 +5,857 @@
 @media(max-width:420px){.stats{grid-template-columns:1fr}.logout-form span{display:none}.panel{padding:17px}.material-grid{grid-template-columns:1fr}.delete-line{grid-column:auto}}
 .heading-actions{display:flex;flex-wrap:wrap;gap:8px}.signature-pad{display:block;width:100%;height:auto;max-height:180px;border:1px dashed #c9c1bd;border-radius:8px;background:linear-gradient(#fff,#fff) padding-box, repeating-linear-gradient(0deg,transparent,transparent 35px,#eee9e6 36px,#eee9e6 37px);touch-action:none}.signature-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.signature-actions small{color:var(--muted)}
 .inventory-warning{margin:-8px 0 22px}.inventory-warning a{margin-left:7px}
+
+/* DULCE ARTE - DISEÑO PROFESIONAL V2 */
+:root {
+    --paper: #f8f7fa;
+    --white: #ffffff;
+    --ink: #292631;
+    --muted: #777482;
+    --line: #ebe7ed;
+    --berry: #a04764;
+    --berry-dark: #813650;
+    --rose: #f9eaf0;
+    --shadow: 0 8px 30px rgba(53, 37, 57, .055);
+}
+
+body {
+    background: var(--paper);
+    -webkit-font-smoothing: antialiased;
+}
+
+.page {
+    max-width: 1500px;
+}
+
+.panel, .stat-card {
+    border-radius: 18px;
+    border: 1px solid #eeeaf0;
+    box-shadow: var(--shadow);
+    transition: box-shadow .2s ease;
+}
+
+.panel:hover, .stat-card:hover {
+    box-shadow: 0 12px 34px rgba(53, 37, 57, .09);
+}
+
+.stat-card {
+    padding: 23px;
+}
+
+.stat-card strong {
+    font-size: 29px;
+    letter-spacing: -.7px;
+}
+
+.stat-icon {
+    width: 43px;
+    height: 43px;
+    border-radius: 13px;
+}
+
+.button {
+    border-radius: 11px;
+    padding: 12px 19px;
+    transition: transform .2s, box-shadow .2s;
+}
+
+.primary {
+    background: linear-gradient(135deg, #ae5572, #913b59);
+    box-shadow: 0 5px 15px rgba(160, 71, 100, .18);
+}
+
+.primary:hover {
+    box-shadow: 0 8px 20px rgba(160, 71, 100, .25);
+}
+
+.secondary:hover {
+    background: #fbf6f8;
+    border-color: #dfcbd3;
+}
+
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+th {
+    background: #faf8fb;
+    padding: 15px 14px;
+    color: #77717e;
+}
+
+td {
+    padding: 17px 14px;
+}
+
+tbody tr {
+    transition: background .15s;
+}
+
+tbody tr:hover {
+    background: #fcf7f9;
+}
+
+.badge {
+    padding: 7px 11px;
+    font-weight: 700;
+}
+
+.field input,
+.field select,
+.field textarea,
+.search-bar input,
+.login-panel input {
+    border-radius: 11px;
+    padding: 12px 14px;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+.order-card {
+    border: 1px solid #eeeaf0;
+    border-radius: 14px;
+    box-shadow: 0 4px 16px rgba(53,37,57,.045);
+}
+
+.kanban-column {
+    border-radius: 16px;
+    background: #f1eef3;
+}
+
+@media (max-width: 760px) {
+    .stat-card {
+        padding: 16px;
+    }
+
+    .panel {
+        border-radius: 14px;
+    }
+}
+
+
+/* DULCE ARTE - KANBAN PROFESIONAL V3 */
+
+.kanban {
+    gap: 18px;
+    padding: 8px 3px 24px;
+    align-items: stretch;
+}
+
+.kanban-column {
+    background: #f4f1f5;
+    border: 1px solid #ebe5ed;
+    border-radius: 18px;
+    padding: 15px;
+    min-height: 420px;
+}
+
+.column-heading {
+    padding: 7px 4px 17px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid #e8e1e9;
+}
+
+.column-heading h2 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #403542;
+}
+
+.column-dot {
+    width: 10px;
+    height: 10px;
+    box-shadow: 0 0 0 4px rgba(160,71,100,.08);
+}
+
+.count {
+    background: #fff;
+    color: #716675;
+    font-weight: 700;
+    padding: 5px 9px;
+}
+
+.column-cards {
+    gap: 13px;
+    padding-top: 10px;
+}
+
+.order-card {
+    background: #ffffff;
+    border: 1px solid #eee8ef;
+    border-radius: 15px;
+    padding: 17px;
+    box-shadow: 0 4px 15px rgba(48,30,48,.04);
+    transition: transform .2s, box-shadow .2s;
+}
+
+.order-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(48,30,48,.10);
+}
+
+.order-number {
+    font-size: 11px;
+    letter-spacing: .3px;
+}
+
+.order-card h3 {
+    font-size: 15px;
+    margin: 15px 0 7px;
+}
+
+.order-card h3 a:hover {
+    color: #a04764;
+}
+
+.card-customer {
+    color: #5c515e;
+    font-size: 12px;
+}
+
+.card-design {
+    line-height: 1.7;
+    min-height: 30px;
+}
+
+.card-footer {
+    margin-top: 12px;
+    padding-top: 13px;
+    font-size: 11px;
+}
+
+.card-footer a {
+    font-weight: 700;
+}
+
+.column-empty {
+    background: #ffffff;
+    border: 1px dashed #e5dce6;
+    border-radius: 12px;
+    padding: 28px 12px;
+}
+
+
+/* DULCE ARTE - ESTADISTICAS KANBAN */
+
+.kanban-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin: 20px 0 24px;
+}
+
+.kanban-stat {
+    background: #fff;
+    border: 1px solid #eee4ea;
+    border-radius: 16px;
+    padding: 20px 24px;
+    box-shadow: 0 5px 18px rgba(48,30,48,.04);
+}
+
+.kanban-stat-label {
+    display: block;
+    color: #8f6678;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.kanban-stat strong {
+    display: block;
+    font-size: 30px;
+    color: #342733;
+    margin: 9px 0;
+}
+
+.kanban-stat small {
+    color: #968791;
+    font-size: 11px;
+}
+
+@media (max-width: 700px) {
+    .kanban-stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+
+/* DULCE ARTE - ALERTAS DE ENTREGA V1 */
+
+.delivery-alert {
+    margin-top: 14px;
+}
+
+.delivery-badge {
+    display: inline-block;
+    padding: 7px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.delivery-overdue {
+    background: #fde8e8;
+    color: #b42318;
+}
+
+.delivery-soon {
+    background: #fff3d6;
+    color: #9a6700;
+}
+
+.delivery-on-time {
+    background: #e5f5eb;
+    color: #24734a;
+}
+
+.delivery-completed {
+    background: #e9edf3;
+    color: #536174;
+}
+
+
+/* DULCE ARTE - KANBAN COMPACTO V4 */
+
+.kanban {
+    align-items: start;
+}
+
+.kanban-column {
+    min-height: 280px;
+}
+
+.column-empty {
+    padding: 22px 12px;
+}
+
+/* ==========================================
+   DULCE ARTE - DETALLE DE PEDIDO V2
+   Diseño profesional
+========================================== */
+
+.detail-grid {
+    grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr);
+    align-items: start;
+    gap: 22px;
+    margin-top: 25px;
+}
+
+.detail-grid > .panel {
+    border: 1px solid #eee5eb;
+    border-radius: 18px;
+    padding: 27px;
+    box-shadow: 0 7px 25px rgba(48, 35, 48, .045);
+}
+
+.detail-grid > .panel:hover,
+.history-panel:hover {
+    box-shadow: 0 10px 30px rgba(48, 35, 48, .075);
+}
+
+.detail-grid .section-heading {
+    padding-bottom: 19px;
+    border-bottom: 1px solid #f0e8ed;
+    margin-bottom: 13px;
+}
+
+.detail-grid .section-heading h2,
+.detail-grid > .panel > h2 {
+    font-size: 23px;
+    color: #342733;
+}
+
+.detail-row {
+    padding: 15px 2px;
+    font-size: 12px;
+    border-bottom: 1px solid #f2edf0;
+}
+
+.detail-row strong {
+    color: #39303a;
+}
+
+.detail-block {
+    padding: 17px 2px;
+    border-bottom: 1px solid #f2edf0;
+}
+
+.detail-block > span {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .7px;
+    text-transform: uppercase;
+    color: #96838e;
+}
+
+.detail-block p {
+    color: #403742;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.production-actions,
+.quote-actions {
+    gap: 10px;
+    padding-top: 8px;
+}
+
+.production-actions form,
+.quote-actions form {
+    display: inline-flex;
+}
+
+.production-actions .button,
+.quote-actions .button {
+    min-height: 39px;
+    border-radius: 9px;
+    font-size: 11px;
+    padding: 10px 14px;
+}
+
+.quote-total {
+    background: #fbf1f5;
+    border: 1px solid #f1e0e8;
+    border-radius: 12px;
+    padding: 18px;
+    margin: 16px 0;
+    color: #93425f;
+}
+
+.quote-total strong {
+    font-size: 25px;
+}
+
+.subheading {
+    font-size: 15px;
+    margin-top: 29px;
+    padding-bottom: 11px;
+    border-bottom: 1px solid #f0e8ed;
+}
+
+.material-summary {
+    padding: 13px 3px;
+    font-size: 12px;
+}
+
+.material-summary > strong {
+    color: #413440;
+    white-space: nowrap;
+}
+
+.material-summary small {
+    display: block;
+    margin-top: 4px;
+    font-size: 10px;
+}
+
+.inventory-state {
+    background: #faf7f9;
+    border-radius: 9px;
+    padding: 14px 11px;
+    margin-top: 15px;
+}
+
+.history-panel {
+    margin-top: 24px;
+    padding: 27px;
+    border-radius: 18px;
+    border: 1px solid #eee5eb;
+    box-shadow: 0 7px 25px rgba(48, 35, 48, .045);
+}
+
+.history-panel .section-heading {
+    padding-bottom: 17px;
+    border-bottom: 1px solid #f0e8ed;
+}
+
+.history-panel .section-heading h2 {
+    font-size: 23px;
+}
+
+.history-item {
+    position: relative;
+    padding: 10px 0 17px 2px;
+}
+
+.history-item:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: 7px;
+    top: 20px;
+    bottom: -2px;
+    width: 1px;
+    background: #eadce3;
+}
+
+.history-marker {
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    background: #a04764;
+    box-shadow: 0 0 0 4px #f8eaf0;
+}
+
+.history-item strong {
+    font-size: 13px;
+    color: #40323d;
+}
+
+.history-item p {
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.page-heading .back-link {
+    margin-bottom: 16px;
+}
+
+.page-heading .badge {
+    padding: 7px 12px;
+}
+
+@media (max-width: 900px) {
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .detail-grid > .panel,
+    .history-panel {
+        padding: 18px;
+        border-radius: 14px;
+    }
+
+    .detail-row {
+        gap: 9px;
+    }
+
+    .production-actions,
+    .quote-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .production-actions form,
+    .quote-actions form,
+    .production-actions .button,
+    .quote-actions .button {
+        width: 100%;
+    }
+
+    .quote-total strong {
+        font-size: 21px;
+    }
+}
+
+/* FIN DETALLE DE PEDIDO V2 */
+
+
+/* DULCE ARTE - SEGUIMIENTO VISUAL V1 */
+
+.da-order-tracking {
+    background: #fff;
+    border: 1px solid #eee5eb;
+    border-radius: 18px;
+    padding: 25px;
+    margin: 20px 0 24px;
+    box-shadow: 0 7px 25px rgba(48,35,48,.045);
+}
+
+.da-tracking-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.da-tracking-header h2 {
+    font-size: 22px;
+}
+
+.da-tracking-header p:last-child {
+    color: #89808a;
+    font-size: 12px;
+    margin: 7px 0 0;
+}
+
+.da-tracking-alert {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 15px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 27px;
+}
+
+.da-tracking-alert span {
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.da-alert-overdue {
+    background: #fde8e8;
+    color: #a52c35;
+}
+
+.da-alert-soon {
+    background: #fff3d6;
+    color: #946300;
+}
+
+.da-alert-ontime {
+    background: #e5f5eb;
+    color: #24734a;
+}
+
+.da-alert-completed {
+    background: #e9edf3;
+    color: #536174;
+}
+
+.da-progress-track {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    position: relative;
+    gap: 8px;
+}
+
+.da-progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+    position: relative;
+}
+
+.da-progress-step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    height: 3px;
+    background: #e9e3e8;
+    left: calc(50% + 17px);
+    right: calc(-50% + 17px);
+    top: 15px;
+}
+
+.da-progress-step.is-done:not(:last-child)::after {
+    background: #a04764;
+}
+
+.da-progress-dot {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #eeeaf0;
+    color: #8b808b;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.da-progress-step.is-done .da-progress-dot {
+    background: #a04764;
+    color: #fff;
+}
+
+.da-progress-step.is-current .da-progress-dot {
+    background: #f8e8ef;
+    color: #a04764;
+    border: 2px solid #a04764;
+    box-shadow: 0 0 0 4px #f8e8ef;
+}
+
+.da-progress-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: #8c828c;
+    line-height: 1.5;
+}
+
+.da-progress-step.is-current .da-progress-label,
+.da-progress-step.is-done .da-progress-label {
+    color: #493441;
+}
+
+@media(max-width: 650px) {
+    .da-order-tracking {
+        padding: 18px;
+    }
+
+    .da-tracking-header {
+        align-items: flex-start;
+    }
+
+    .da-tracking-alert {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .da-progress-track {
+        grid-template-columns: 1fr;
+        gap: 17px;
+    }
+
+    .da-progress-step {
+        flex-direction: row;
+        text-align: left;
+        gap: 12px;
+    }
+
+    .da-progress-step:not(:last-child)::after {
+        width: 2px;
+        height: 24px;
+        left: 15px;
+        top: 32px;
+        right: auto;
+    }
+}
+
+/* FIN SEGUIMIENTO VISUAL V1 */
+
+
+/* DULCE ARTE - HISTORIAL PROFESIONAL V1 */
+
+.history-timeline {
+    position: relative;
+    padding: 8px 0 4px 8px;
+}
+
+.history-event {
+    position: relative;
+    display: flex;
+    gap: 20px;
+    padding: 10px 0 25px 4px;
+}
+
+.history-event:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    left: 10px;
+    top: 29px;
+    bottom: -1px;
+    width: 2px;
+    background: #eee4eb;
+}
+
+.history-event-marker {
+    position: relative;
+    z-index: 1;
+    flex: 0 0 14px;
+    width: 14px;
+    height: 14px;
+    margin-top: 4px;
+    border-radius: 50%;
+    background: #a04764;
+    border: 3px solid #f6e8ee;
+    box-shadow: 0 0 0 2px #ffffff;
+}
+
+.history-event-content {
+    flex: 1;
+    min-width: 0;
+    background: #fcfafc;
+    border: 1px solid #f0eaf0;
+    border-radius: 13px;
+    padding: 15px 17px;
+}
+
+.history-event-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.history-event-header strong {
+    font-size: 13px;
+    color: #392d38;
+}
+
+.history-event-header time {
+    font-size: 11px;
+    color: #918591;
+}
+
+.history-transition {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin: 12px 0;
+    font-size: 11px;
+    color: #77717b;
+}
+
+.history-arrow {
+    color: #a04764;
+    font-weight: 700;
+}
+
+.history-current {
+    background: #f8eaf0;
+    color: #963c5b;
+    padding: 5px 10px;
+    border-radius: 7px;
+    font-weight: 700;
+}
+
+.history-created {
+    color: #77717b;
+}
+
+.history-responsible {
+    margin: 0;
+    padding-top: 10px;
+    border-top: 1px solid #eee8ed;
+    font-size: 11px;
+    color: #89818b;
+}
+
+.history-responsible strong {
+    color: #51404e;
+    margin-left: 4px;
+}
+
+.history-empty {
+    text-align: center;
+    padding: 30px 15px;
+    color: #8b808b;
+}
+
+.history-empty > span {
+    font-size: 26px;
+    color: #a04764;
+}
+
+.history-empty strong {
+    display: block;
+    margin-top: 9px;
+    font-size: 13px;
+}
+
+.history-empty p {
+    font-size: 11px;
+}
+
+@media (max-width: 600px) {
+    .history-event {
+        gap: 12px;
+    }
+
+    .history-event-content {
+        padding: 12px;
+    }
+}
+

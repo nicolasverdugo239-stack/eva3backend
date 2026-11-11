@@ -1,3 +1,4 @@
+from .dashboard_stats import get_dashboard_charts
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
@@ -37,6 +38,7 @@ def dashboard(request):
         ).count(),
         "deliveries_completed": Dispatch.objects.filter(status=Dispatch.Status.DELIVERED).count(),
     }
+    context.update(get_dashboard_charts())
     return render(request, "pedidos/dashboard.html", context)
 
 @login_required
@@ -51,7 +53,22 @@ def order_list(request):
         (status, Order.Status(status).label, orders.filter(status=status))
         for status in KANBAN_STATUSES
     ]
-    return render(request, "pedidos/order_list.html", {"columns": columns, "query": query})
+    stats = {
+        "total": orders.count(),
+        "production": orders.filter(
+            status__in=[
+                Order.Status.PREPARING,
+                Order.Status.BAKED,
+                Order.Status.QUALITY,
+            ]
+        ).count(),
+        "ready": orders.filter(status=Order.Status.READY).count(),
+    }
+    return render(
+        request,
+        "pedidos/order_list.html",
+        {"columns": columns, "query": query, "stats": stats},
+    )
 
 
 @role_required(SALES)
@@ -332,3 +349,73 @@ def _delete_catalog(request, model, pk, redirect_name):
         messages.success(request, "Registro eliminado.")
         return redirect(redirect_name)
     return render(request, "pedidos/confirm_delete.html", {"object": instance, "title": "Eliminar registro"})
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
+from django.db import transaction
+
+from .forms import TrabajadorCreationForm
+
+
+@login_required
+def trabajador_create(request):
+    # Solo los superusuarios pueden crear trabajadores.
+    if not request.user.is_superuser:
+        raise PermissionDenied(
+            "Solo el administrador puede crear trabajadores."
+        )
+
+    if request.method == "POST":
+        form = TrabajadorCreationForm(request.POST)
+
+        if form.is_valid():
+            with transaction.atomic():
+                trabajador = form.save(commit=False)
+                trabajador.is_staff = True
+                trabajador.is_superuser = False
+                trabajador.save()
+
+                grupo = Group.objects.get(
+                    name=form.cleaned_data["role"]
+                )
+                trabajador.groups.add(grupo)
+
+            messages.success(
+                request,
+                "Trabajador creado correctamente."
+            )
+            return redirect("trabajador_list")
+    else:
+        form = TrabajadorCreationForm()
+
+    return render(
+        request,
+        "pedidos/trabajador_form.html",
+        {
+            "form": form,
+            "title": "Crear trabajador",
+        },
+    )
+@login_required
+def trabajador_list(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied(
+            "Solo el administrador puede ver los trabajadores."
+        )
+
+    User = get_user_model()
+
+    trabajadores = (
+        User.objects
+        .filter(is_superuser=False)
+        .prefetch_related("groups")
+        .order_by("username")
+    )
+
+    return render(
+        request,
+        "pedidos/trabajador_list.html",
+        {
+            "trabajadores": trabajadores,
+            "title": "Gestión de trabajadores",
+        },
+    )
