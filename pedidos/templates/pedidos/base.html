@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Dulce Arte{% endblock %} · Dulce Arte</title>
-    <link rel="stylesheet" href="{% static 'pedidos/app.css' %}">
+    <link rel="stylesheet" href="{% static 'pedidos/app.css' %}?v=dark20261111">
 
     <style>
         :root {
@@ -421,6 +421,92 @@
     font-size: 13px;
 }
 </style>
+
+<!-- DULCE ARTE DARK SIDEBAR V1 -->
+<style>
+:root {
+    --da-rose: #aa8aff;
+    --da-dark: #f1f2f8;
+    --da-cream: #141720;
+}
+
+html, body {
+    background: #141720;
+    color: #f1f2f8;
+}
+
+.da-layout, .da-main, .da-main .page {
+    background: #141720;
+}
+
+.da-sidebar {
+    background: #191d29;
+    border-color: #34394a;
+    box-shadow: 4px 0 25px rgba(0,0,0,.15);
+}
+
+.da-brand, .da-brand strong {
+    color: #f1f2f8;
+}
+
+.da-brand-mark {
+    background: #7548e8;
+    color: #fff;
+}
+
+.da-brand small,
+.da-nav-title,
+.da-username {
+    color: #a8afc2;
+}
+
+.da-nav a {
+    color: #c4c8d7;
+}
+
+.da-nav a:hover,
+.da-nav a.active {
+    background: #332b50;
+    color: #c9b6ff;
+}
+
+.da-sidebar-bottom {
+    border-color: #34394a;
+    background: transparent;
+}
+
+.da-logout {
+    color: #c9b6ff;
+}
+
+.da-logout:hover {
+    background: #332b50;
+}
+
+.da-main .footer {
+    background: #141720;
+    color: #a8afc2;
+    border-color: #34394a;
+}
+
+.da-main .page h1,
+.da-main .page h2,
+.da-main .page h3 {
+    color: #f1f2f8;
+}
+
+.da-main .page .muted {
+    color: #a8afc2;
+}
+
+@media (max-width: 800px) {
+    .da-sidebar {
+        background: #191d29;
+        border-color: #34394a;
+    }
+}
+</style>
+
 
 </head>
 

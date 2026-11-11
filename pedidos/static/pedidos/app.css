@@ -859,3 +859,201 @@ tbody tr:hover {
     }
 }
 
+
+/* =========================================
+   DULCE ARTE - DARK PROFESSIONAL V1
+   ========================================= */
+
+:root {
+  --ink: #f1f2f8;
+  --muted: #a8afc2;
+  --line: #34394a;
+  --paper: #141720;
+  --white: #202431;
+  --berry: #aa8aff;
+  --berry-dark: #7952df;
+  --rose: #30274b;
+  --green: #8de1b1;
+  --green-bg: #203d34;
+  --amber: #f4cb82;
+  --amber-bg: #49391f;
+  --purple: #c2adff;
+  --shadow: 0 8px 30px rgba(0,0,0,.2);
+  color-scheme: dark;
+}
+
+body { background: var(--paper); color: var(--ink); }
+h1, h2, h3, .page-heading h1 { color: var(--ink); }
+
+.topbar {
+  background: #191c27;
+  border-color: var(--line);
+}
+.topbar nav a, .logout-form { color: #c4c8d7; }
+.topbar nav a:hover { color: var(--berry); }
+.brand-mark { background: #7548e8; color: #fff; }
+.footer { color: var(--muted); }
+
+.panel, .stat-card, .kanban-stat,
+.da-order-tracking, .history-panel {
+  background: var(--white);
+  border-color: var(--line);
+  box-shadow: var(--shadow);
+}
+.panel:hover, .stat-card:hover,
+.history-panel:hover {
+  box-shadow: 0 12px 34px rgba(0,0,0,.25);
+}
+
+.stat-card strong, .kanban-stat strong,
+.detail-grid .section-heading h2,
+.detail-grid > .panel > h2,
+.detail-row strong, .detail-block p,
+.material-summary > strong, .history-item strong,
+.history-event-header strong, .history-responsible strong {
+  color: var(--ink);
+}
+
+.stat-label, .stat-card small,
+.kanban-stat-label, .kanban-stat small {
+  color: var(--muted);
+}
+.stat-icon { background: #352957; color: #c6b2ff; }
+
+.primary {
+  background: linear-gradient(135deg,#865cf2,#673bd0);
+  color: #fff;
+  box-shadow: 0 5px 15px rgba(103,59,208,.25);
+}
+.primary:hover {
+  background: #956dff;
+  box-shadow: 0 8px 20px rgba(103,59,208,.35);
+}
+.secondary, .danger-outline {
+  background: #292d3b;
+  border-color: #44495d;
+  color: #f1f2f8;
+}
+.secondary:hover { background: #353a4c; border-color: #66578f; }
+.danger-outline { color: #ffadb4; }
+.link-button, .text-link, .table-link,
+.back-link, .actions a { color: var(--berry); }
+
+th { background: #292d3b; color: #bdc3d4; border-color: var(--line); }
+td { color: #e0e3ee; border-color: var(--line); }
+tbody tr:hover { background: #292d3b; }
+
+.kanban-column {
+  background: #1b1f2a;
+  border-color: var(--line);
+}
+.column-heading { border-color: var(--line); }
+.column-heading h2 { color: var(--ink); }
+.count { background: #34394a; color: #e0e3ee; }
+.order-card {
+  background: #252a38;
+  border-color: #3a4053;
+  box-shadow: 0 4px 15px rgba(0,0,0,.15);
+}
+.order-card h3, .card-customer { color: var(--ink); }
+.order-card h3 a:hover { color: var(--berry); }
+.card-footer, .detail-row, .detail-block,
+.material-summary, .form-actions,
+.form-section-heading, .subheading {
+  border-color: var(--line);
+}
+.column-empty {
+  background: #252a38;
+  border-color: #41465a;
+  color: var(--muted);
+}
+
+.field label { color: #e3e5ef; }
+.field input, .field select, .field textarea,
+.search-bar input, .login-panel input,
+input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+select, textarea {
+  background: #191d29;
+  color: #f1f2f8;
+  border: 1px solid #454b60;
+  border-radius: 10px;
+  padding: 11px 13px;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #aa8aff;
+  box-shadow: 0 0 0 3px rgba(170,138,255,.15);
+}
+input::placeholder, textarea::placeholder { color: #9299ac; }
+
+.detail-grid > .panel, .history-panel,
+.detail-grid .section-heading,
+.history-panel .section-heading {
+  border-color: var(--line);
+}
+.quote-total, .inventory-state,
+.history-event-content {
+  background: #29263b;
+  border-color: #49415f;
+  color: #d9caff;
+}
+.history-event-header time, .history-transition,
+.history-responsible { color: var(--muted); }
+.history-current { background: #3b3059; color: #d9caff; }
+.history-event:not(:last-child)::before { background: #4b405e; }
+
+.da-progress-dot { background: #35394b; color: #c5c9d8; }
+.da-progress-step:not(:last-child)::after { background: #44485b; }
+.da-progress-label,
+.da-progress-step.is-current .da-progress-label,
+.da-progress-step.is-done .da-progress-label { color: #d0d3e0; }
+.da-progress-step.is-current .da-progress-dot {
+  background: #3d305f;
+  color: #d9caff;
+  box-shadow: 0 0 0 4px #302747;
+}
+.da-tracking-header p:last-child { color: var(--muted); }
+
+.badge, .status-received, .quote-draft,
+.dispatch-planned { background: #34394a; color: #d5d9e7; }
+.status-preparing, .dispatch-in_route {
+  background: #253a59; color: #a9ccff;
+}
+.status-baked, .quote-sent {
+  background: #4a3925; color: #ffd49a;
+}
+.status-quality { background: #3b3059; color: #d9caff; }
+.status-ready, .delivered, .quote-approved {
+  background: #234437; color: #9ae8be;
+}
+.status-cancelled, .quote-rejected, .low-stock,
+.dispatch-issue {
+  background: #4b2934; color: #ffabb7;
+}
+
+.message { background: #234437; color: #a8edc8; }
+.message.error { background: #4b2934; color: #ffabb7; }
+.message.warning { background: #4a3925; color: #ffd49a; }
+
+.delivery-overdue, .da-alert-overdue {
+  background: #4b2934; color: #ffabb7;
+}
+.delivery-soon, .da-alert-soon {
+  background: #4a3925; color: #ffd49a;
+}
+.delivery-on-time, .da-alert-ontime {
+  background: #234437; color: #9ae8be;
+}
+.delivery-completed, .da-alert-completed {
+  background: #34394a; color: #d5d9e7;
+}
+
+.signature-pad {
+  background: #f8f8fb;
+  border-color: #696e80;
+}
+
+a:focus-visible, button:focus-visible {
+  outline: 2px solid #b49aff;
+  outline-offset: 3px;
+}
